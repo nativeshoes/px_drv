@@ -2,8 +2,8 @@
 #ifndef _RECPT1_H_
 #define _RECPT1_H_
 
-#define NUM_BSDEV       8
-#define NUM_ISDB_T_DEV  8
+#define NUM_BSDEV      36 
+#define NUM_ISDB_T_DEV  36
 #define CHTYPE_SATELLITE    0        /* satellite digital */
 #define CHTYPE_GROUND       1        /* terrestrial digital */
 #define MAX_QUEUE           8192
@@ -11,6 +11,8 @@
 #define WRITE_SIZE          (1024 * 1024 * 2)
 #define TRUE                1
 #define FALSE               0
+
+//#define ASV5220_USE_APKEY1
 
 typedef struct _BUFSZ {
     int size;
