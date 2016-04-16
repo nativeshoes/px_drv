@@ -14,7 +14,7 @@
 void
 show_usage(char *cmd)
 {
-    fprintf(stderr, "Usage: \n%s --pid pid [--channel channel] [--extend time_to_extend] [--time recording_time]\n", cmd);
+    fprintf(stderr, "Usage: \n%s --pid pid [--channel channel] [--sid SID1,SID2] [--extend time_to_extend] [--time recording_time]\n", cmd);
     fprintf(stderr, "\n");
 }
 
@@ -24,6 +24,7 @@ show_options(void)
     fprintf(stderr, "Options:\n");
     fprintf(stderr, "--pid:               Process id of recpt1 to control\n");
     fprintf(stderr, "--channel:           Tune to specified channel\n");
+    fprintf(stderr, "--sid SID1,SID2,...: Specify SID number in CSV format (101,102,...)\n");
     fprintf(stderr, "--extend:            Extend recording time\n");
     fprintf(stderr, "--time:              Set total recording time\n");
     fprintf(stderr, "--help:              Show this help\n");
@@ -37,15 +38,18 @@ main(int argc, char **argv)
     int msqid;
     int msgflg = IPC_CREAT | 0666;
     key_t key = 0;
-    int channel=0, recsec = 0, extsec=0;
+    int recsec = 0, extsec=0;
+    char *channel = NULL;
     message_buf sbuf;
     size_t buf_length;
+    char *sid_list = NULL;
 
     int result;
     int option_index;
     struct option long_options[] = {
         { "pid",       1, NULL, 'p'},
         { "channel",   1, NULL, 'c'},
+        { "sid",       1, NULL, 'i'},
         { "extend",    1, NULL, 'e'},
         { "time",      1, NULL, 't'},
         { "help",      0, NULL, 'h'},
@@ -54,7 +58,7 @@ main(int argc, char **argv)
         {0, 0, NULL, 0} /* terminate */
     };
 
-    while((result = getopt_long(argc, argv, "p:c:e:t:hvl",
+    while((result = getopt_long(argc, argv, "p:c:i:e:t:hvl",
                                 long_options, &option_index)) != -1) {
         switch(result) {
         case 'h':
@@ -82,8 +86,8 @@ main(int argc, char **argv)
             fprintf(stderr, "Pid = %d\n", key);
             break;
         case 'c':
-            channel = atoi(optarg);
-            fprintf(stderr, "Channel = %d\n", channel);
+            channel = optarg;
+            fprintf(stderr, "Channel = %s\n", channel);
             break;
         case 'e':
             parse_time(optarg, &extsec);
@@ -92,6 +96,10 @@ main(int argc, char **argv)
         case 't':
             parse_time(optarg, &recsec);
             fprintf(stderr, "Total recording time = %d sec\n", recsec);
+            break;
+        case 'i':
+            sid_list = optarg;
+            fprintf(stderr, "Service ID = %s\n", sid_list);
             break;
         }
     }
@@ -108,7 +116,7 @@ main(int argc, char **argv)
     }
 
     sbuf.mtype = 1;
-    sprintf(sbuf.mtext, "ch=%d t=%d e=%d", channel, recsec, extsec);
+    sprintf(sbuf.mtext, "ch=%s t=%d e=%d sid=%s", channel, recsec, extsec, sid_list);
 
     buf_length = strlen(sbuf.mtext) + 1 ;
 

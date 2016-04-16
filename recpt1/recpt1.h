@@ -12,6 +12,9 @@
 #define TRUE                1
 #define FALSE               0
 
+#define ISDB_T_NODE_LIMIT 24        // 32:ARIB limit 24:program maximum
+#define ISDB_T_SLOT_LIMIT 8
+
 //#define ASV5220_USE_APKEY1
 
 typedef struct _BUFSZ {

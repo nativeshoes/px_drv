@@ -233,7 +233,13 @@ parse_time(char *rectimestr, int *recsec)
     else {
         char *tmpstr;
         char *p1, *p2;
+        int  flag;
 
+        if( *rectimestr == '-' ){
+            rectimestr++;
+            flag = 1;
+        }else
+            flag = 0;
         tmpstr = strdup(rectimestr);
         p1 = tmpstr;
         while(*p1 && !isdigit(*p1))
@@ -259,6 +265,8 @@ parse_time(char *rectimestr, int *recsec)
 
         /* second */
         *recsec += atoi(p1);
+        if( flag )
+            *recsec *= -1;
 
         free(tmpstr);
 
