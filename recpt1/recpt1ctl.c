@@ -7,15 +7,9 @@
 
 #include <ctype.h>
 #include <getopt.h>
-
-#include "version.h"
+#include "recpt1core.h"
 
 #define MSGSZ     255
-
-typedef struct msgbuf {
-    long    mtype;
-    char    mtext[MSGSZ];
-} message_buf;
 
 void
 show_usage(char *cmd)
@@ -35,93 +29,6 @@ show_options(void)
     fprintf(stderr, "--help:              Show this help\n");
     fprintf(stderr, "--version:           Show version\n");
     fprintf(stderr, "--list:              Show channel list\n");
-}
-
-void
-show_channels(void)
-{
-    FILE *f;
-    char *home;
-    char buf[255], filename[255];
-
-    fprintf(stderr, "Available Channels:\n");
-
-    home = getenv("HOME");
-    sprintf(filename, "%s/.recpt1-channels", home);
-    f = fopen(filename, "r");
-    if(f) {
-        while(fgets(buf, 255, f))
-            fprintf(stderr, "%s", buf);
-        fclose(f);
-    }
-    else
-        fprintf(stderr, "13-62: Terrestrial Channels\n");
-
-    fprintf(stderr, "101ch: NHK BS1\n");
-    fprintf(stderr, "102ch: NHK BS2\n");
-    fprintf(stderr, "103ch: NHK BShi\n");
-    fprintf(stderr, "141ch: BS Nittele\n");
-    fprintf(stderr, "151ch: BS Asahi\n");
-    fprintf(stderr, "161ch: BS-TBS\n");
-    fprintf(stderr, "171ch: BS Japan\n");
-    fprintf(stderr, "181ch: BS Fuji\n");
-    fprintf(stderr, "191ch: WOWOW\n");
-    fprintf(stderr, "200ch: Star Channel\n");
-    fprintf(stderr, "211ch: BS11 Digital\n");
-    fprintf(stderr, "222ch: TwellV\n");
-    fprintf(stderr, "CS2-CS24: CS Channels\n");
-}
-
-int
-parse_time(char *rectimestr, int *recsec)
-{
-    /* indefinite */
-    if(!strcmp("-", rectimestr)) {
-        *recsec = -1;
-    }
-    /* colon */
-    else if(strchr(rectimestr, ':')) {
-        int n1, n2, n3;
-        if(sscanf(rectimestr, "%d:%d:%d", &n1, &n2, &n3) == 3)
-            *recsec = n1 * 3600 + n2 * 60 + n3;
-        else if(sscanf(rectimestr, "%d:%d", &n1, &n2) == 2)
-            *recsec = n1 * 3600 + n2 * 60;
-    }
-    /* HMS */
-    else {
-        char *tmpstr;
-        char *p1, *p2;
-
-        tmpstr = strdup(rectimestr);
-        p1 = tmpstr;
-        while(*p1 && !isdigit(*p1))
-            p1++;
-
-        /* hour */
-        if((p2 = strchr(p1, 'H')) || (p2 = strchr(p1, 'h'))) {
-            *p2 = '\0';
-            *recsec += atoi(p1) * 3600;
-            p1 = p2 + 1;
-            while(*p1 && !isdigit(*p1))
-                p1++;
-        }
-
-        /* minute */
-        if((p2 = strchr(p1, 'M')) || (p2 = strchr(p1, 'm'))) {
-            *p2 = '\0';
-            *recsec += atoi(p1) * 60;
-            p1 = p2 + 1;
-            while(*p1 && !isdigit(*p1))
-                p1++;
-        }
-
-        /* second */
-        *recsec += atoi(p1);
-
-        free(tmpstr);
-    }
-
-    return 0; /* success */
 }
 
 int
