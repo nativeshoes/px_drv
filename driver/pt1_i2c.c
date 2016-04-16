@@ -1,5 +1,5 @@
 /***************************************************************************/
-/* I2C¾ğÊóºîÀ®                                                             */
+/* I2Cæƒ…å ±ä½œæˆ                                                             */
 /***************************************************************************/
 #include <linux/module.h>
 #include <linux/kernel.h>
@@ -34,7 +34,7 @@ static	void	start_i2c(void __iomem *, __u32 *, __u32 *, __u32);
 static	void	stop_i2c(void __iomem *, __u32 *, __u32 *, __u32, __u32);
 
 
-// PCI¤Ë½ñ¤­¹ş¤àI2C¥Ç¡¼¥¿À¸À®
+// PCIã«æ›¸ãè¾¼ã‚€I2Cãƒ‡ãƒ¼ã‚¿ç”Ÿæˆ
 void	makei2c(void __iomem *regs, __u32 base_addr, __u32 i2caddr, __u32 writemode, __u32 data_en, __u32 clock, __u32 busy)
 {
 
@@ -60,17 +60,17 @@ BIT 19, 19+8 ON
 BIT 16, 16+8 ON
 BIT 17, 17+8 ON
  */
-	// XC3S½é´ü²½
+	// XC3SåˆæœŸåŒ–
 	for(lp = 0 ; lp < PROGRAM_ADDRESS ; lp++){
 		makei2c(regs, lp, 0, READ_EN, DATA_DIS, CLOCK_DIS, BUSY_DIS);
 	}
-	// XC3S ½é´ü²½ÂÔ¤Á (512 PCI Clocks)
+	// XC3S åˆæœŸåŒ–å¾…ã¡ (512 PCI Clocks)
 	for(lp = 0 ; lp <  XC3S_PCI_CLOCK ; lp++){
 		makei2c(regs, 0, 0, READ_EN, DATA_DIS, CLOCK_DIS, BUSY_DIS);
 	}
-	// ¥×¥í¥Æ¥¯¥È²ò½ü
-	// ¤³¤ì¤Ï²¿¤ò°Õ¿Ş¤·¤Æ¤¤¤ë¤ó¤À¤í¤¦¡©
-	// ¸µ¥³¡¼¥É¤¬ÎÉ¤¯È½¤é¤Ê¤¤
+	// ãƒ—ãƒ­ãƒ†ã‚¯ãƒˆè§£é™¤
+	// ã“ã‚Œã¯ä½•ã‚’æ„å›³ã—ã¦ã„ã‚‹ã‚“ã ã‚ã†ï¼Ÿ
+	// å…ƒã‚³ãƒ¼ãƒ‰ãŒè‰¯ãåˆ¤ã‚‰ãªã„
 	for(lp = 0 ; lp < 57 ; lp++){
 		val = readl(regs);
 		if(val & I2C_READ_SYNC){
@@ -120,7 +120,7 @@ BIT 17, 17+8 ON
 		}
 	}
 
-	// ¥¹¥È¥ê¡¼¥à¤´¤È¤ÎÅ¾Á÷À©¸æ(OFF)
+	// ã‚¹ãƒˆãƒªãƒ¼ãƒ ã”ã¨ã®è»¢é€åˆ¶å¾¡(OFF)
 	for(lp = 0 ; lp < MAX_CHANNEL ; lp++){
 		SetStream(regs, lp, 0);
 		SetStream(regs, lp, 0);
@@ -129,8 +129,8 @@ BIT 17, 17+8 ON
 }
 //
 //
-//BIT 0. 1 : TunerÈÖ¹æ (Enable/Disable)
-//BIT 8. 9 : TunerÈÖ¹æ
+//BIT 0. 1 : Tunerç•ªå· (Enable/Disable)
+//BIT 8. 9 : Tunerç•ªå·
 //
 //
 void	SetStream(void __iomem *regs, __u32 channel, __u32 enable)
@@ -153,7 +153,7 @@ static	int		i2c_lock(void __iomem *regs, __u32 firstval, __u32  secondval, __u32
 	writel(firstval, regs);
 	writel(secondval, regs);
 
-	// RAM¤¬¥í¥Ã¥¯¤µ¤ì¤¿¡©
+	// RAMãŒãƒ­ãƒƒã‚¯ã•ã‚ŒãŸï¼Ÿ
 	for(lp = 0 ; lp < XC3S_PCI_CLOCK ; lp++){
 		val = readl(regs);
 		if((val & lockval)){
@@ -174,11 +174,11 @@ static	int		i2c_lock_one(void __iomem *regs, __u32 firstval, __u32 lockval)
 	val = (readl(regs) & lockval);
 	writel(firstval, regs);
 
-	// RAM¤¬¥í¥Ã¥¯¤µ¤ì¤¿¡©
+	// RAMãŒãƒ­ãƒƒã‚¯ã•ã‚ŒãŸï¼Ÿ
 	for(lp = 0 ; lp < 10 ; lp++){
 		for(lp = 0 ; lp < 1024 ; lp++){
 			val2 = readl(regs);
-			// ºÇ½é¤Ë¼èÆÀ¤·¤¿¥Ç¡¼¥¿¤ÈµÕ¤Ë¤Ê¤ì¤ĞOK
+			// æœ€åˆã«å–å¾—ã—ãŸãƒ‡ãƒ¼ã‚¿ã¨é€†ã«ãªã‚Œã°OK
 			if(((val2 & lockval) != val)){
 				return 0 ;
 			}
@@ -224,26 +224,26 @@ void	blockwrite(void __iomem *regs, WBLOCK *wblock)
 	start_i2c(regs, &address, &clock, old_bits);
 	old_bits = 0 ;
 
-	// ¤Ş¤º¥¢¥É¥ì¥¹¤ò½ñ¤¯
+	// ã¾ãšã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ›¸ã
 	for(bitpos = 0 ; bitpos < 7 ; bitpos++){
 		bits  = ((wblock->addr >> (6 - bitpos)) & 1);
 		writebits(regs, &address, old_bits, bits);
 		old_bits = bits ;
 	}
-	// ¥¿¥¤¥×¡§WRT
+	// ã‚¿ã‚¤ãƒ—ï¼šWRT
 	writebits(regs, &address, old_bits, 0);
-	// ACK/NACKÍÑ(É¬¤º1)
+	// ACK/NACKç”¨(å¿…ãš1)
 	writebits(regs, &address, 0, 1);
 
 	old_bits = 1 ;
-	// ¼Âºİ¤Î¥Ç¡¼¥¿¤ò½ñ¤¯
+	// å®Ÿéš›ã®ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ã
 	for (lp = 0 ; lp < wblock->count ; lp++){
 		for(bitpos = 0 ; bitpos < 8 ; bitpos++){
 			bits  = ((wblock->value[lp] >> (7 - bitpos)) & 1);
 			writebits(regs, &address, old_bits, bits);
 			old_bits = bits ;
 		}
-		// ACK/NACKÍÑ(É¬¤º1)
+		// ACK/NACKç”¨(å¿…ãš1)
 		writebits(regs, &address, old_bits, 1);
 		old_bits = 1 ;
 	}
@@ -276,26 +276,26 @@ void	blockread(void __iomem *regs, WBLOCK *wblock, int count)
 	start_i2c(regs, &address, &clock, old_bits);
 	old_bits = 0 ;
 
-	// ¤Ş¤º¥¢¥É¥ì¥¹¤ò½ñ¤¯
+	// ã¾ãšã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ›¸ã
 	for(bitpos = 0 ; bitpos < 7 ; bitpos++){
 		bits  = ((wblock->addr >> (6 - bitpos)) & 1);
 		writebits(regs, &address, old_bits, bits);
 		old_bits = bits ;
 	}
-	// ¥¿¥¤¥×¡§WRT
+	// ã‚¿ã‚¤ãƒ—ï¼šWRT
 	writebits(regs, &address, old_bits, 0);
-	// ACK/NACKÍÑ(É¬¤º1)
+	// ACK/NACKç”¨(å¿…ãš1)
 	writebits(regs, &address, 0, 1);
 
 	old_bits = 1 ;
-	// ¼Âºİ¤Î¥Ç¡¼¥¿¤ò½ñ¤¯
+	// å®Ÿéš›ã®ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ã
 	for (lp = 0 ; lp < wblock->count ; lp++){
 		for(bitpos = 0 ; bitpos < 8 ; bitpos++){
 			bits  = ((wblock->value[lp] >> (7 - bitpos)) & 1);
 			writebits(regs, &address, old_bits, bits);
 			old_bits = bits ;
 		}
-		// ACK/NACKÍÑ(É¬¤º1)
+		// ACK/NACKç”¨(å¿…ãš1)
 		writebits(regs, &address, old_bits, 1);
 		old_bits = 1 ;
 	}
@@ -305,22 +305,22 @@ void	blockread(void __iomem *regs, WBLOCK *wblock, int count)
 	clock = TRUE ;
 	address += 1 ;
 
-	// ¤³¤³¤«¤é Read
+	// ã“ã“ã‹ã‚‰ Read
 	start_i2c(regs, &address, &clock, old_bits);
 	old_bits = 0 ;
-	// ¤Ş¤º¥¢¥É¥ì¥¹¤ò½ñ¤¯
+	// ã¾ãšã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’æ›¸ã
 	for(bitpos = 0 ; bitpos < 7 ; bitpos++){
 		bits  = ((wblock->addr >> (6 - bitpos)) & 1);
 		writebits(regs, &address, old_bits, bits);
 		old_bits = bits ;
 	}
-	// ¥¿¥¤¥×¡§RD
+	// ã‚¿ã‚¤ãƒ—ï¼šRD
 	writebits(regs, &address, old_bits, 1);
-	// ACK/NACKÍÑ(É¬¤º1)
+	// ACK/NACKç”¨(å¿…ãš1)
 	writebits(regs, &address, 1, 1);
 
 	old_bits = 1 ;
-	// ¼Âºİ¤Î¥Ç¡¼¥¿¤ò½ñ¤¯
+	// å®Ÿéš›ã®ãƒ‡ãƒ¼ã‚¿ã‚’æ›¸ã
 	for (lp = 0 ; lp < count ; lp++){
 		for(bitpos = 0 ; bitpos < 8 ; bitpos++){
 			writebits(regs, &address, old_bits, 1);
@@ -330,11 +330,11 @@ void	blockread(void __iomem *regs, WBLOCK *wblock, int count)
 			old_bits = 1 ;
 		}
 		if(lp >= (count - 1)){
-			// ACK/NACKÍÑ(É¬¤º1)
+			// ACK/NACKç”¨(å¿…ãš1)
 			writebits(regs, &address, old_bits, 1);
 			old_bits = 0 ;
 		}else{
-			// ACK/NACKÍÑ(É¬¤º1)
+			// ACK/NACKç”¨(å¿…ãš1)
 			writebits(regs, &address, old_bits, 0);
 			old_bits = 1 ;
 		}
@@ -377,9 +377,9 @@ static	void begin_i2c(void __iomem *regs, __u32 *address, __u32 *clock)
 
 static	void	start_i2c(void __iomem *regs, __u32 *address, __u32 *clock, __u32 data)
 {
-	// ¥Ç¡¼¥¿¤¬»Ä¤Ã¤Æ¤¤¤Ê¤±¤ì¤Ğ¥Ç¡¼¥¿¤ò²¼¤²¤ë
+	// ãƒ‡ãƒ¼ã‚¿ãŒæ®‹ã£ã¦ã„ãªã‘ã‚Œã°ãƒ‡ãƒ¼ã‚¿ã‚’ä¸‹ã’ã‚‹
 	if(!data){
-		// CLOCK¤¬¤¢¤ì¤ĞCLOCK¤ò²¼¤²¤ë
+		// CLOCKãŒã‚ã‚Œã°CLOCKã‚’ä¸‹ã’ã‚‹
 		if(*clock != TRUE){
 			*clock = TRUE ;
 			makei2c(regs, *address, *address + 1, 0, 1, 1, 1);
@@ -401,9 +401,9 @@ static	void	start_i2c(void __iomem *regs, __u32 *address, __u32 *clock, __u32 da
 
 static	void	stop_i2c(void __iomem *regs, __u32 *address, __u32 *clock, __u32 data, __u32 end)
 {
-	// ¥Ç¡¼¥¿¤¬»Ä¤Ã¤Æ¤¤¤Æ
+	// ãƒ‡ãƒ¼ã‚¿ãŒæ®‹ã£ã¦ã„ã¦
 	if(data){
-		// ¥¯¥í¥Ã¥¯¤¬¤¢¤ì¤Ğ
+		// ã‚¯ãƒ­ãƒƒã‚¯ãŒã‚ã‚Œã°
 		if(*clock != TRUE){
 			*clock = TRUE ;
 			makei2c(regs, *address, *address + 1, 0, 0, 1, 1);
@@ -412,7 +412,7 @@ static	void	stop_i2c(void __iomem *regs, __u32 *address, __u32 *clock, __u32 dat
 		makei2c(regs, *address, *address + 1, 0, 1, 1, 1);
 		*address += 1 ;
 	}
-	// ¥¯¥í¥Ã¥¯¤¬Íî¤Á¤Æ¤¤¤ì¤Ğ
+	// ã‚¯ãƒ­ãƒƒã‚¯ãŒè½ã¡ã¦ã„ã‚Œã°
 	if(*clock){
 		*clock = FALSE ;
 		makei2c(regs, *address, *address + 1, 0, 1, 0, 1);
@@ -433,7 +433,7 @@ void	i2c_write(void __iomem *regs, struct mutex *lock, WBLOCK *wblock)
 	int		lp;
 	__u32	val ;
 
-	// ¥í¥Ã¥¯¤¹¤ë
+	// ãƒ­ãƒƒã‚¯ã™ã‚‹
 	mutex_lock(lock);
 #if 0
 	printk(KERN_INFO "Addr=%x(%d)\n", wblock->addr, wblock->count);
@@ -445,7 +445,7 @@ void	i2c_write(void __iomem *regs, struct mutex *lock, WBLOCK *wblock)
 
 	blockwrite(regs, wblock);
 	writel(FIFO_GO, regs + FIFO_GO_ADDR);
-	//¤È¤ê¤¢¤¨¤º¥í¥Ã¥¯¤·¤Ê¤¤¤è¤¦¤Ë¡£
+	//ã¨ã‚Šã‚ãˆãšãƒ­ãƒƒã‚¯ã—ãªã„ã‚ˆã†ã«ã€‚
 	for(lp = 0 ; lp < 100 ; lp++){
 		val = readl(regs + FIFO_RESULT_ADDR);
 		if(!(val & FIFO_DONE)){
@@ -462,7 +462,7 @@ __u32	i2c_read(void __iomem *regs, struct mutex *lock, WBLOCK *wblock, int size)
 	int		lp;
 	__u32	val ;
 
-	// ¥í¥Ã¥¯¤¹¤ë
+	// ãƒ­ãƒƒã‚¯ã™ã‚‹
 	mutex_lock(lock);
 #if 0
 	printk(KERN_INFO "Addr=%x:%d:%d\n", wblock->addr, wblock->count, size);

@@ -426,18 +426,18 @@ reader_func(void *p)
             }
 
             while(buf.size) {
-                /* $BJ,N%BP>](BPID$B$NCj=P(B */
+                /* 分離対象PIDの抽出 */
                 if(split_select_finish != TSS_SUCCESS) {
                     split_select_finish = split_select(splitter, &buf);
                     if(split_select_finish == TSS_NULL) {
-                        /* malloc$B%(%i!<H/@8(B */
+                        /* mallocエラー発生 */
                         fprintf(stderr, "split_select malloc failed\n");
                         use_splitter = FALSE;
                         goto fin;
                     }
                     else if(split_select_finish != TSS_SUCCESS) {
-                        /* $BJ,N%BP>](BPID$B$,40A4$KCj=P$G$-$k$^$G=PNO$7$J$$(B
-                         * 1$BICDxEYM>M5$r8+$k$H$$$$$+$b(B
+                        /* 分離対象PIDが完全に抽出できるまで出力しない
+                         * 1秒程度余裕を見るといいかも
                          */
                         time_t cur_time;
                         time(&cur_time);
@@ -448,7 +448,7 @@ reader_func(void *p)
                         break;
                     }
                 }
-                /* $BJ,N%BP>]0J30$r$U$k$$Mn$H$9(B */
+                /* 分離対象以外をふるい落とす */
                 code = split_ts(splitter, &buf, &splitbuf);
                 if(code == TSS_NULL) {
                     fprintf(stderr, "PMT reading..\n");
@@ -523,7 +523,7 @@ reader_func(void *p)
             }
 
             if(use_splitter) {
-                /* $BJ,N%BP>]0J30$r$U$k$$Mn$H$9(B */
+                /* 分離対象以外をふるい落とす */
                 code = split_ts(splitter, &buf, &splitbuf);
                 if(code == TSS_NULL) {
                     split_select_finish = TSS_ERROR;
