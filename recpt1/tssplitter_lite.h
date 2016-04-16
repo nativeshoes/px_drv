@@ -61,11 +61,11 @@ typedef struct splitter {
 	uint8_t packet_seq[MAX_PID];	// 巡回カウンタ
 } splitter;
 
-/* b25 decoder would hoard up large chank */
 typedef struct _splitbuf_t
 {
-    int size;
-    u_char buffer[1024*1024];
+	u_char* buffer;
+	int buffer_size;
+	int buffer_filled;
 } splitbuf_t;
 
 splitter* split_startup(char *sid);

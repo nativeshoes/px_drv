@@ -376,7 +376,8 @@ reader_func(void *p)
 
     buf.size = 0;
     buf.data = NULL;
-    splitbuf.size = 0;
+    splitbuf.buffer_size = 0;
+    splitbuf.buffer = NULL;
 
     if(wfd == -1)
         fileless = TRUE;
@@ -412,7 +413,17 @@ reader_func(void *p)
 
 
         if(use_splitter) {
-            splitbuf.size = 0;
+            splitbuf.buffer_filled = 0;
+
+            /* allocate split buffer */
+            if(splitbuf.buffer_size < buf.size && buf.size > 0) {
+                splitbuf.buffer = realloc(splitbuf.buffer, buf.size);
+                if(splitbuf.buffer == NULL) {
+                    fprintf(stderr, "split buffer allocation failed\n");
+                    use_splitter = FALSE;
+                    goto fin;
+                }
+            }
 
             while(buf.size) {
                 /* 分離対象PIDの抽出 */
@@ -450,7 +461,7 @@ reader_func(void *p)
                 break;
             } /* while */
 
-            buf.size = splitbuf.size;
+            buf.size = splitbuf.buffer_filled;
             buf.data = splitbuf.buffer;
         fin:
             ;
@@ -524,7 +535,7 @@ reader_func(void *p)
                 }
 
                 buf.data = splitbuf.buffer;
-                buf.size = splitbuf.size;
+                buf.size = splitbuf.buffer_size;
             }
 
             if(!fileless && !file_err) {
@@ -543,6 +554,12 @@ reader_func(void *p)
                     if(errno == EPIPE)
                         pthread_kill(signal_thread, SIGPIPE);
                 }
+            }
+            
+            if(use_splitter) {
+                free(splitbuf.buffer);
+                splitbuf.buffer = NULL;
+                splitbuf.buffer_size = 0;
             }
 
             break;

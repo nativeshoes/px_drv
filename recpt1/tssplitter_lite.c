@@ -314,7 +314,7 @@ int split_ts(
 	int version = 0;
 
 	/* ½é´ü²½ */
-	dbuf->size = 0;
+	dbuf->buffer_filled = 0;
 	if (sbuf->size < 0) {
 		return TSS_ERROR;
 	}
@@ -342,7 +342,7 @@ int split_ts(
 
 			memcpy(dptr + d_offset, splitter->pat, LENGTH_PACKET);
 			d_offset += LENGTH_PACKET;
-			dbuf->size += LENGTH_PACKET;
+			dbuf->buffer_filled += LENGTH_PACKET;
 			break;
 		default:
 		    if(0 != splitter->pmt_pids[pid]) {
@@ -372,7 +372,7 @@ int split_ts(
 			if(0 != splitter->pids[pid]) {
 				memcpy(dptr + d_offset, sptr + s_offset, LENGTH_PACKET);
 				d_offset += LENGTH_PACKET;
-				dbuf->size += LENGTH_PACKET;
+				dbuf->buffer_filled += LENGTH_PACKET;
 			}
 			break;
 		} /* switch */
