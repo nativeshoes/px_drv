@@ -19,8 +19,8 @@ LIBS3    = -lpthread -lm
 LDFLAGS  =
 
 OBJS  = recpt1.o decoder.o mkpath.o tssplitter_lite.o asicen_dtv.o recpt1core.o
-OBJS2 = recpt1ctl.o recpt1core.o
-OBJS3 = checksignal.o recpt1core.o
+OBJS2 = recpt1ctl.o asicen_dtv.o recpt1core.o
+OBJS3 = checksignal.o asicen_dtv.o recpt1core.o
 OBJALL = $(OBJS) $(OBJS2) $(OBJS3)
 DEPEND = .deps
 
