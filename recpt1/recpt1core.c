@@ -297,6 +297,7 @@ parse_time(char *rectimestr, int *recsec)
     /* indefinite */
     if(!strcmp("-", rectimestr)) {
         *recsec = -1;
+        return 0;
     }
     /* colon */
     else if(strchr(rectimestr, ':')) {
