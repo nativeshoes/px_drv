@@ -279,4 +279,3 @@ int DTV_SCardTransmit(unsigned char *pbSendBuffer,int SendLength,unsigned char *
 
 	return success;
 }
-
