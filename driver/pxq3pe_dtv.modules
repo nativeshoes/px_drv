@@ -1,4 +1,0 @@
-#!/bin/bash
-
-/sbin/insmod /path/to/pxq3pe_dtv.ko
-chmod 755 /dev/pxq3pe*
