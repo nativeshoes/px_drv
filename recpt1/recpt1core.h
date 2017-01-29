@@ -45,52 +45,54 @@
 /* type definitions */
 typedef int boolean;
 
-typedef struct sock_data {
+typedef struct sock_data
+{
     int sfd;    /* socket fd */
     struct sockaddr_in addr;
 } sock_data;
 
-typedef struct msgbuf {
+typedef struct msgbuf
+{
     long    mtype;
     char    mtext[MSGSZ];
 } message_buf;
 
-typedef struct thread_data {
-    int tfd;    /* tuner fd */ //xxx variable
+typedef struct thread_data
+{
+    int tfd;            /* tuner fd */ //xxx variable
 
-    int wfd;    /* output file fd */ //invariable
-    int lnb;    /* LNB voltage */ //invariable
-    int msqid; //invariable
-    time_t start_time; //invariable
+    int wfd;            /* output file fd */ //invariable
+    int lnb;            /* LNB voltage */ //invariable
+    int msqid;          //invariable
+    time_t start_time;  //invariable
 
-    int recsec; //xxx variable
+    int recsec;         //xxx variable
 
-    boolean indefinite; //invaliable
-    boolean tune_persistent; //invaliable
+    boolean indefinite;             //invaliable
+    boolean tune_persistent;        //invaliable
 
-    QUEUE_T *queue; //invariable
-    ISDB_T_FREQ_CONV_TABLE *table; //invariable
-    sock_data *sock_data; //invariable
-    pthread_t signal_thread; //invariable
-    decoder *decoder; //invariable
-    decoder_options *dopt; //invariable
-    splitter *splitter; //invariable
+    QUEUE_T* queue;                 //invariable
+    ISDB_T_FREQ_CONV_TABLE* table;  //invariable
+    sock_data* sock_data;           //invariable
+    pthread_t signal_thread;        //invariable
+    decoder* decoder;               //invariable
+    decoder_options* dopt;          //invariable
+    splitter* splitter;             //invariable
 } thread_data;
 
-extern const char *version;
-extern char *bsdev[];
-extern char *isdb_t_dev[];
+extern const char* version;
+extern char* bsdev[];
+extern char* isdb_t_dev[];
 
 extern boolean f_exit;
 
 /* prototypes */
-int tune(char *channel, thread_data *tdata, char *device);
-int close_tuner(thread_data *tdata);
+int tune(char* channel, thread_data* tdata, char* device);
+int close_tuner(thread_data* tdata);
 void show_channels(void);
-ISDB_T_FREQ_CONV_TABLE *searchrecoff(char *channel);
+ISDB_T_FREQ_CONV_TABLE* searchrecoff(char* channel);
 void calc_cn(int fd, int type, boolean use_bell);
-int parse_time(char *rectimestr, int *recsec);
+int parse_time(char* rectimestr, int* recsec);
 void do_bell(int bell);
-
 
 #endif

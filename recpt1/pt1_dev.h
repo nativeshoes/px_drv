@@ -2,7 +2,8 @@
 #ifndef _PT1_DEV_H_
 #define _PT1_DEV_H_
 
-char *bsdev[NUM_BSDEV] = {
+char* bsdev[NUM_BSDEV] =
+{
     "/dev/pt1video1",
     "/dev/pt1video0",
     "/dev/pt1video5",
@@ -35,12 +36,13 @@ char *bsdev[NUM_BSDEV] = {
     "/dev/pxq3pe9",
     "/dev/pxq3pe12",
     "/dev/pxq3pe13",
-    "/dev/pxw3u30",  
+    "/dev/pxw3u30",
     "/dev/pxw3u32",
-    "/dev/pxs3u20",  
-    "/dev/pxs3u0"  
+    "/dev/pxs3u20",
+    "/dev/pxs3u0"
 };
-char *isdb_t_dev[NUM_ISDB_T_DEV] = {
+char* isdb_t_dev[NUM_ISDB_T_DEV] =
+{
     "/dev/pt1video2",
     "/dev/pt1video3",
     "/dev/pt1video6",
@@ -73,10 +75,10 @@ char *isdb_t_dev[NUM_ISDB_T_DEV] = {
     "/dev/pxq3pe11",
     "/dev/pxq3pe14",
     "/dev/pxq3pe15",
-    "/dev/pxw3u31", 
+    "/dev/pxw3u31",
     "/dev/pxw3u33",
-    "/dev/pxs3u21",  
-    "/dev/pxs3u1"  
+    "/dev/pxs3u21",
+    "/dev/pxs3u1"
 };
 
 // 変換テーブル(ISDB-T用)
@@ -85,7 +87,8 @@ char *isdb_t_dev[NUM_ISDB_T_DEV] = {
 // http://www5e.biglobe.ne.jp/~kazu_f/digital-sat/index.htmlより取得。
 //
 
-ISDB_T_FREQ_CONV_TABLE    isdb_t_conv_table[] = {
+ISDB_T_FREQ_CONV_TABLE    isdb_t_conv_table[] =
+{
     {   0, CHTYPE_SATELLITE, 0, "151"},  /* 151ch：BS朝日 */
     {   0, CHTYPE_SATELLITE, 1, "161"},  /* 161ch：BS-TBS */
     {   1, CHTYPE_SATELLITE, 0, "191"},  /* 191ch：WOWOW prime */
@@ -264,4 +267,5 @@ ISDB_T_FREQ_CONV_TABLE    isdb_t_conv_table[] = {
     { 112, CHTYPE_GROUND, 0,  "62"},
     { 0, 0, 0, NULL} /* terminate */
 };
+
 #endif

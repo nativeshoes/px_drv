@@ -23,44 +23,45 @@
 #include "asicen_dtv.h"
 #include "recpt1.h"
 
-#define		GET_DRV_SUPPORT	_IOR(0x8D, 0x81, int *)
-#define		GET_RANDOM_KEY	_IOR(0x8D, 0x82, int *)
-#define		GEN_ENC_SEED	_IOW(0x8D, 0x83, int *)
-#define		DECRYP_MULTI_TS	_IOR(0x8D, 0x85, int *)
-#define     SET_BCAS_COMMAND  _IOW(0x8D, 0x87, int *)
-#define     GET_BCAS_COMMAND  _IOR(0x8D, 0x88, int *)
+#define GET_DRV_SUPPORT     _IOR(0x8D, 0x81, int *)
+#define GET_RANDOM_KEY      _IOR(0x8D, 0x82, int *)
+#define GEN_ENC_SEED        _IOW(0x8D, 0x83, int *)
+#define DECRYP_MULTI_TS     _IOR(0x8D, 0x85, int *)
+#define SET_BCAS_COMMAND    _IOW(0x8D, 0x87, int *)
+#define GET_BCAS_COMMAND    _IOR(0x8D, 0x88, int *)
 
-#define BCAS_Reset			0
-#define BCAS_IDLE			1
-#define BCAS_StartWtCmd	2
-#define BCAS_WaitRdCmd		3
-#define BCAS_SendChain		4
-#define BCAS_CmdOK			5
+#define BCAS_Reset      0
+#define BCAS_IDLE       1
+#define BCAS_StartWtCmd 2
+#define BCAS_WaitRdCmd  3
+#define BCAS_SendChain  4
+#define BCAS_CmdOK      5
 
-typedef struct _AUSBDTV_GEN_ENCSEED_STRUCTURE 
+typedef struct _AUSBDTV_GEN_ENCSEED_STRUCTURE
 {
-    unsigned char *APEncSeed;
+    unsigned char* APEncSeed;
     unsigned char APEncSeedLen;
-    unsigned char *PCKey;
+    unsigned char* PCKey;
     unsigned char PCKeyLen;
-}AUSBDTV_GEN_ENCSEED_STRUCTURE, *PAUSBDTV_GEN_ENCSEED_STRUCTURE;
+} AUSBDTV_GEN_ENCSEED_STRUCTURE, *PAUSBDTV_GEN_ENCSEED_STRUCTURE;
 
-typedef struct _AUSBDTV_DECRYP_MULTI_TS_STRUCTURE 
+typedef struct _AUSBDTV_DECRYP_MULTI_TS_STRUCTURE
 {
     unsigned char* TSData_In;
     unsigned char* TSData_Out;
     int FrameNum;
-}AUSBDTV_DECRYP_MULTI_TS_STRUCTURE, *PAUSBDTV_DECRYP_MULTI_TS_STRUCTURE;
+} AUSBDTV_DECRYP_MULTI_TS_STRUCTURE, *PAUSBDTV_DECRYP_MULTI_TS_STRUCTURE;
 
 typedef struct _AUSBDTV_BCAS_CMD_RW
 {
-	unsigned char Status;
-	unsigned char ValidByteCnt;
-	unsigned char Data[320];
+    unsigned char Status;
+    unsigned char ValidByteCnt;
+    unsigned char Data[320];
 } AUSBDTV_BCAS_CMD_RW, *PAUSBDTV_BCAS_CMD_RW;
 
 //========= Gen Key ============
-static const unsigned int  Box0[256] = {
+static const unsigned int  Box0[256] =
+{
     0x63636363U, 0x7c7c7c7cU, 0x77777777U, 0x7b7b7b7bU,
     0xf2f2f2f2U, 0x6b6b6b6bU, 0x6f6f6f6fU, 0xc5c5c5c5U,
     0x30303030U, 0x01010101U, 0x67676767U, 0x2b2b2b2bU,
@@ -126,156 +127,169 @@ static const unsigned int  Box0[256] = {
     0x41414141U, 0x99999999U, 0x2d2d2d2dU, 0x0f0f0f0fU,
     0xb0b0b0b0U, 0x54545454U, 0xbbbbbbbbU, 0x16161616U,
 };
-static const unsigned int  Box1[] = {
-	0x01000000, 0x02000000, 0x04000000, 0x08000000,
-	0x10000000, 0x20000000, 0x40000000, 0x80000000,
-	0x1B000000, 0x36000000
+
+static const unsigned int Box1[] =
+{
+    0x01000000, 0x02000000, 0x04000000, 0x08000000,
+    0x10000000, 0x20000000, 0x40000000, 0x80000000,
+    0x1B000000, 0x36000000
 };
 
-typedef unsigned int	u32;
+typedef unsigned int u32;
 
 #define GETU32PT(pt) (((u32)(pt)[0] << 24) ^ ((u32)(pt)[1] << 16) ^ ((u32)(pt)[2] <<  8) ^ ((u32)(pt)[3]))
 
-void Gen_Identify_Key(unsigned char* OutputKey, unsigned char* InputKey, unsigned char* RandomKey) 
+void Gen_Identify_Key(unsigned char* OutputKey, unsigned char* InputKey, unsigned char* RandomKey)
 {
-	int i = 0,j=0;
-	unsigned int  temp;
-	unsigned int Output[8],*finalOut=(unsigned int *)OutputKey;
-	unsigned char InputKeyTmp[16];
+    int i;
+    int j;
+    unsigned int  temp;
+    unsigned int  Output[8];
+    unsigned int* finalOut = (unsigned int*)OutputKey;
+    unsigned char InputKeyTmp[16];
 
-	for(i=0;i<16;i++)
-		InputKeyTmp[i]=InputKey[i]^RandomKey[i];
-
-	i = 0;
-	Output[0] = GETU32PT(InputKeyTmp     );
-	Output[1] = GETU32PT(InputKeyTmp +  4);
-	Output[2] = GETU32PT(InputKeyTmp +  8);
-	Output[3] = GETU32PT(InputKeyTmp + 12);
-	for (;;) 
-	{
-		temp  = Output[3];
-		Output[4] = Output[0] ^
-				(Box0[(temp >> 16) & 0xff] & 0xff000000) ^
-				(Box0[(temp >>  8) & 0xff] & 0x00ff0000) ^
-				(Box0[(temp      ) & 0xff] & 0x0000ff00) ^
-				(Box0[(temp >> 24)       ] & 0x000000ff) ^
-				Box1[i];
-		Output[5] = Output[1] ^ Output[4];
-		Output[6] = Output[2] ^ Output[5];
-		Output[7] = Output[3] ^ Output[6];
-		if (++i == 10) 
-		{
-			for(j=0;j<4;j++)
-				finalOut[j]=Output[j+4];
-			return ;
-		}
-
-		for(j=0;j<4;j++)
-			Output[j]=Output[j+4];
-	}
-}
-
-int DTV_Get_Device_Support(unsigned char* pFeature,int InputSz,HANDLE hDeviceHandle)
-{
-	int   success;
-	unsigned char u8Data=0;
-	unsigned long ReturnVariable=0;
-	
-	success = ioctl(hDeviceHandle, GET_DRV_SUPPORT,pFeature);
- 	return success;
-}
-
-int DTV_Get_RandomKey(unsigned char* pRandomKey,int InputSz,HANDLE hDeviceHandle)
-{
-	int   success;
-	unsigned char u8Data=0;
-	unsigned long ReturnVariable=0;
-	
-	success = ioctl(hDeviceHandle, GET_RANDOM_KEY,pRandomKey);
- 	return success;
-}
-
-int DTV_SetEncrypKey(unsigned char* APEncSeed, unsigned char APEncSeedLen,	unsigned char* PCKey, unsigned char PCKeyLen,HANDLE hDeviceHandle)
-{
-	int   success;
-	AUSBDTV_GEN_ENCSEED_STRUCTURE DTV_GEN_ENCSEED_Data;
-	unsigned long ReturnVariable=0;
-	unsigned char u8CmdRtData[64];
-	unsigned char bAPKeyIdenfy[4];
-	unsigned char pRandomKey[16];
-	unsigned char OutputKey[16];
-	
-	if(DTV_Get_Device_Support(bAPKeyIdenfy,4,hDeviceHandle))
-		return FALSE;
-	
-	if(bAPKeyIdenfy[0]!=0)
-	{
-		if(DTV_Get_RandomKey(pRandomKey,16,hDeviceHandle))
-			return FALSE;
-		Gen_Identify_Key(OutputKey, APEncSeed, pRandomKey);
-		
-		DTV_GEN_ENCSEED_Data.APEncSeed=OutputKey;
-		DTV_GEN_ENCSEED_Data.APEncSeedLen=APEncSeedLen;
-		DTV_GEN_ENCSEED_Data.PCKey=PCKey;
-		DTV_GEN_ENCSEED_Data.PCKeyLen=PCKeyLen;
-
-		success = ioctl(hDeviceHandle, GEN_ENC_SEED,&DTV_GEN_ENCSEED_Data);
-	}
-	else
-	{
-		DTV_GEN_ENCSEED_Data.APEncSeed=APEncSeed;
-		DTV_GEN_ENCSEED_Data.APEncSeedLen=APEncSeedLen;
-		DTV_GEN_ENCSEED_Data.PCKey=PCKey;
-		DTV_GEN_ENCSEED_Data.PCKeyLen=PCKeyLen;
-
-		success = ioctl(hDeviceHandle, GEN_ENC_SEED,&DTV_GEN_ENCSEED_Data);
-	}
-	
-	return success;
-}
-
-int DTV_GetDecryptData(unsigned char* TSData_In, int FrameNum,unsigned char* TSData_Out,HANDLE hDeviceHandle)
-{
-	int   success;
-	AUSBDTV_DECRYP_MULTI_TS_STRUCTURE DTV_DECRYP_MULTI_Data;
-	unsigned long ReturnVariable=0;
-	
-	
-	DTV_DECRYP_MULTI_Data.TSData_In=TSData_In;
-	DTV_DECRYP_MULTI_Data.TSData_Out=TSData_Out;
-	DTV_DECRYP_MULTI_Data.FrameNum=FrameNum;
-
-	success = ioctl(hDeviceHandle, DECRYP_MULTI_TS,&DTV_DECRYP_MULTI_Data);
-	return success;
-}
-
-int DTV_SCardTransmit(unsigned char *pbSendBuffer,int SendLength,unsigned char *pbRecvBuffer,int *RecvLength,HANDLE hDeviceHandle)
-{
-	AUSBDTV_BCAS_CMD_RW bcas_cmd;
-	int   success;
-	unsigned char timeout_counter;
-
-	memcpy(bcas_cmd.Data,pbSendBuffer,SendLength);
-	bcas_cmd.ValidByteCnt=SendLength;
-	timeout_counter=0;
-	success =ioctl (hDeviceHandle, SET_BCAS_COMMAND,&bcas_cmd);
-
-	success =ioctl (hDeviceHandle, GET_BCAS_COMMAND,&bcas_cmd);
-	timeout_counter=0;
-	while(bcas_cmd.Status!=BCAS_IDLE)
-	{
-		timeout_counter++;
-		if(timeout_counter>20)
-			break;
-		success =ioctl (hDeviceHandle, GET_BCAS_COMMAND,&bcas_cmd);
-		usleep(50000);
-	}
-
-    if(timeout_counter<20)
+    for (i = 0; i < 16; i++)
     {
-		memcpy(pbRecvBuffer,bcas_cmd.Data,bcas_cmd.ValidByteCnt);
-		*RecvLength=bcas_cmd.ValidByteCnt;
-   	}
+        InputKeyTmp[i] = InputKey[i] ^ RandomKey[i];
+    }
 
-	return success;
+    i = 0;
+    Output[0] = GETU32PT(InputKeyTmp);
+    Output[1] = GETU32PT(InputKeyTmp +  4);
+    Output[2] = GETU32PT(InputKeyTmp +  8);
+    Output[3] = GETU32PT(InputKeyTmp + 12);
+
+    for (;;)
+    {
+        temp  = Output[3];
+        Output[4] = Output[0] ^
+                    (Box0[(temp >> 16) & 0xff] & 0xff000000) ^
+                    (Box0[(temp >>  8) & 0xff] & 0x00ff0000) ^
+                    (Box0[(temp) & 0xff] & 0x0000ff00) ^
+                    (Box0[(temp >> 24)       ] & 0x000000ff) ^
+                    Box1[i];
+        Output[5] = Output[1] ^ Output[4];
+        Output[6] = Output[2] ^ Output[5];
+        Output[7] = Output[3] ^ Output[6];
+
+        if (++i == 10)
+        {
+            for (j = 0; j < 4; j++)
+            {
+                finalOut[j] = Output[j + 4];
+            }
+
+            return;
+        }
+
+        for (j = 0; j < 4; j++)
+        {
+            Output[j] = Output[j + 4];
+        }
+    }
+}
+
+int DTV_Get_Device_Support(unsigned char* pFeature, int InputSz, HANDLE hDeviceHandle)
+{
+    int success;
+    unsigned char u8Data = 0;
+    unsigned long ReturnVariable = 0;
+    success = ioctl(hDeviceHandle, GET_DRV_SUPPORT, pFeature);
+    return success;
+}
+
+int DTV_Get_RandomKey(unsigned char* pRandomKey, int InputSz, HANDLE hDeviceHandle)
+{
+    int success;
+    unsigned char u8Data = 0;
+    unsigned long ReturnVariable = 0;
+    success = ioctl(hDeviceHandle, GET_RANDOM_KEY, pRandomKey);
+    return success;
+}
+
+int DTV_SetEncrypKey(unsigned char* APEncSeed, unsigned char APEncSeedLen,	unsigned char* PCKey, unsigned char PCKeyLen, HANDLE hDeviceHandle)
+{
+    int success;
+    AUSBDTV_GEN_ENCSEED_STRUCTURE DTV_GEN_ENCSEED_Data;
+    unsigned long ReturnVariable = 0;
+    unsigned char u8CmdRtData[64];
+    unsigned char bAPKeyIdenfy[4];
+    unsigned char pRandomKey[16];
+    unsigned char OutputKey[16];
+
+    if (DTV_Get_Device_Support(bAPKeyIdenfy, 4, hDeviceHandle))
+    {
+        return FALSE;
+    }
+
+    if (bAPKeyIdenfy[0] != 0)
+    {
+        if (DTV_Get_RandomKey(pRandomKey, 16, hDeviceHandle))
+        {
+            return FALSE;
+        }
+
+        Gen_Identify_Key(OutputKey, APEncSeed, pRandomKey);
+        DTV_GEN_ENCSEED_Data.APEncSeed = OutputKey;
+        DTV_GEN_ENCSEED_Data.APEncSeedLen = APEncSeedLen;
+        DTV_GEN_ENCSEED_Data.PCKey = PCKey;
+        DTV_GEN_ENCSEED_Data.PCKeyLen = PCKeyLen;
+        success = ioctl(hDeviceHandle, GEN_ENC_SEED, &DTV_GEN_ENCSEED_Data);
+    }
+    else
+    {
+        DTV_GEN_ENCSEED_Data.APEncSeed = APEncSeed;
+        DTV_GEN_ENCSEED_Data.APEncSeedLen = APEncSeedLen;
+        DTV_GEN_ENCSEED_Data.PCKey = PCKey;
+        DTV_GEN_ENCSEED_Data.PCKeyLen = PCKeyLen;
+        success = ioctl(hDeviceHandle, GEN_ENC_SEED, &DTV_GEN_ENCSEED_Data);
+    }
+
+    return success;
+}
+
+int DTV_GetDecryptData(unsigned char* TSData_In, int FrameNum, unsigned char* TSData_Out, HANDLE hDeviceHandle)
+{
+    int success;
+    AUSBDTV_DECRYP_MULTI_TS_STRUCTURE DTV_DECRYP_MULTI_Data;
+    unsigned long ReturnVariable = 0;
+    DTV_DECRYP_MULTI_Data.TSData_In = TSData_In;
+    DTV_DECRYP_MULTI_Data.TSData_Out = TSData_Out;
+    DTV_DECRYP_MULTI_Data.FrameNum = FrameNum;
+    success = ioctl(hDeviceHandle, DECRYP_MULTI_TS, &DTV_DECRYP_MULTI_Data);
+    return success;
+}
+
+int DTV_SCardTransmit(unsigned char* pbSendBuffer, int SendLength, unsigned char* pbRecvBuffer, int* RecvLength, HANDLE hDeviceHandle)
+{
+    AUSBDTV_BCAS_CMD_RW bcas_cmd;
+    int success;
+    unsigned char timeout_counter;
+    memcpy(bcas_cmd.Data, pbSendBuffer, SendLength);
+    bcas_cmd.ValidByteCnt = SendLength;
+    timeout_counter = 0;
+    success = ioctl(hDeviceHandle, SET_BCAS_COMMAND, &bcas_cmd);
+    success = ioctl(hDeviceHandle, GET_BCAS_COMMAND, &bcas_cmd);
+    timeout_counter = 0;
+
+    while (bcas_cmd.Status != BCAS_IDLE)
+    {
+        timeout_counter++;
+
+        if (timeout_counter > 20)
+        {
+            break;
+        }
+
+        success = ioctl(hDeviceHandle, GET_BCAS_COMMAND, &bcas_cmd);
+        usleep(50000);
+    }
+
+    if (timeout_counter < 20)
+    {
+        memcpy(pbRecvBuffer, bcas_cmd.Data, bcas_cmd.ValidByteCnt);
+        *RecvLength = bcas_cmd.ValidByteCnt;
+    }
+
+    return success;
 }
