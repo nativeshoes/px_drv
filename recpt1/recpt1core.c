@@ -7,12 +7,12 @@
 #define ISDB_T_NODE_LIMIT 24 // 32:ARIB limit 24:program maximum
 #define ISDB_T_SLOT_LIMIT 8
 
-/* globals */
+// globals
 boolean f_exit = FALSE;
 char  bs_channel_buf[8];
 ISDB_T_FREQ_CONV_TABLE isdb_t_conv_set = { 0, CHTYPE_SATELLITE, 0, bs_channel_buf };
 
-/* lookup frequency conversion table*/
+// lookup frequency conversion table
 ISDB_T_FREQ_CONV_TABLE* searchrecoff(char* channel)
 {
     int lp;
@@ -51,10 +51,9 @@ ISDB_T_FREQ_CONV_TABLE* searchrecoff(char* channel)
 
     for (lp = 0; isdb_t_conv_table[lp].parm_freq != NULL; lp++)
     {
-        /* return entry number in the table when strings match and
-         * lengths are same. */
+        // return entry number in the table when strings match and lengths are same.
         if ((memcmp(isdb_t_conv_table[lp].parm_freq, channel, strlen(channel)) == 0)
-                && (strlen(channel) == strlen(isdb_t_conv_table[lp].parm_freq)))
+            && (strlen(channel) == strlen(isdb_t_conv_table[lp].parm_freq)))
         {
             return &isdb_t_conv_table[lp];
         }
@@ -87,7 +86,7 @@ int close_tuner(thread_data* tdata)
 
 float getsignal_isdb_s(int signal)
 {
-    /* apply linear interpolation */
+    // apply linear interpolation
     static const float afLevelTable[] =
     {
         24.07f,    // 00    00    0        24.07dB
@@ -110,46 +109,45 @@ float getsignal_isdb_s(int signal)
     sigbuf[0] = (((signal & 0xFF00) >> 8) & 0XFF);
     sigbuf[1] = (signal & 0xFF);
 
-    /* calculate signal level */
+    // calculate signal level
     if (sigbuf[0] <= 0x10U)
     {
-        /* clipped maximum */
+        // clipped maximum
         return 24.07f;
     }
     else if (sigbuf[0] >= 0xB0U)
     {
-        /* clipped minimum */
+        // clipped minimum
         return 0.0f;
     }
     else
     {
-        /* linear interpolation */
-        const float fMixRate =
-            (float)(((unsigned short)(sigbuf[0] & 0x0FU) << 8) |
-                    (unsigned short)sigbuf[0]) / 4096.0f;
-        return afLevelTable[sigbuf[0] >> 4] * (1.0f - fMixRate) +
-               afLevelTable[(sigbuf[0] >> 4) + 0x01U] * fMixRate;
+        // linear interpolation
+        const float fMixRate = (float)(((unsigned short)(sigbuf[0] & 0x0FU) << 8)
+            | (unsigned short)sigbuf[0]) / 4096.0f;
+        return afLevelTable[sigbuf[0] >> 4] * (1.0f - fMixRate)
+            + afLevelTable[(sigbuf[0] >> 4) + 0x01U] * fMixRate;
     }
 }
 
 void calc_cn(int fd, int type, boolean use_bell)
 {
-    int     rc;
-    double  P;
-    double  CNR;
+    int rc;
     int bell = 0;
+    double P;
+    double CNR;
 
     if (ioctl(fd, GET_SIGNAL_STRENGTH, &rc) < 0)
     {
         fprintf(stderr, "Tuner Select Error\n");
-        return ;
+        return;
     }
 
     if (type == CHTYPE_GROUND)
     {
         P = log10(5505024 / (double)rc) * 10;
-        CNR = (0.000024 * P * P * P * P) - (0.0016 * P * P * P) +
-              (0.0398 * P * P) + (0.5491 * P) + 3.0965;
+        CNR = (0.000024 * P * P * P * P) - (0.0016 * P * P * P)
+            + (0.0398 * P * P) + (0.5491 * P) + 3.0965;
     }
     else
     {
@@ -184,7 +182,8 @@ void show_channels(void)
 {
     FILE* f;
     char* home;
-    char buf[255], filename[255];
+    char buf[255];
+    char filename[255];
     fprintf(stderr, "Available Channels:\n");
     home = getenv("HOME");
     sprintf(filename, "%s/.recpt1-channels", home);
@@ -241,13 +240,13 @@ void show_channels(void)
 
 int parse_time(char* rectimestr, int* recsec)
 {
-    /* indefinite */
+    // indefinite
     if (!strcmp("-", rectimestr))
     {
         *recsec = -1;
         return 0;
     }
-    /* colon */
+    // colon
     else if (strchr(rectimestr, ':'))
     {
         int n1, n2, n3;
@@ -262,17 +261,18 @@ int parse_time(char* rectimestr, int* recsec)
         }
         else
         {
-            /* unsuccessful */
+            // unsuccessful
             return 1;
         }
 
         return 0;
     }
-    /* HMS */
+    // HMS
     else
     {
         char* tmpstr;
-        char* p1, *p2;
+        char* p1;
+        char* p2;
         int  flag;
 
         if (*rectimestr == '-')
@@ -293,7 +293,7 @@ int parse_time(char* rectimestr, int* recsec)
             p1++;
         }
 
-        /* hour */
+        // hour
         if ((p2 = strchr(p1, 'H')) || (p2 = strchr(p1, 'h')))
         {
             *p2 = '\0';
@@ -306,7 +306,7 @@ int parse_time(char* rectimestr, int* recsec)
             }
         }
 
-        /* minute */
+        // minute
         if ((p2 = strchr(p1, 'M')) || (p2 = strchr(p1, 'm')))
         {
             *p2 = '\0';
@@ -319,7 +319,7 @@ int parse_time(char* rectimestr, int* recsec)
             }
         }
 
-        /* second */
+        // second
         *recsec += atoi(p1);
 
         if (flag)
@@ -331,7 +331,7 @@ int parse_time(char* rectimestr, int* recsec)
         return 0;
     }
 
-    /* unsuccessful */
+    // unsuccessful
     return 1;
 }
 
@@ -346,7 +346,7 @@ void do_bell(int bell)
     }
 }
 
-/* from checksignal.c */
+// from checksignal.c
 int tune(char* channel, thread_data* tdata, char* device)
 {
     char** tuner;
@@ -354,6 +354,7 @@ int tune(char* channel, thread_data* tdata, char* device)
     int lp;
     FREQUENCY freq;
     unsigned char EncAPKey[16];
+
     // Just use a dummy key to test
     unsigned char EncPCKey[16] =
     {
@@ -378,7 +379,8 @@ int tune(char* channel, thread_data* tdata, char* device)
         0x95, 0x1a, 0xce, 0x09,
         0xdd, 0x86, 0x78, 0xa4
     };
-    /* get channel */
+
+    // get channel
     tdata->table = searchrecoff(channel);
 
     if (tdata->table == NULL)
@@ -390,8 +392,8 @@ int tune(char* channel, thread_data* tdata, char* device)
     freq.frequencyno = tdata->table->set_freq;
     freq.slot = tdata->table->add_freq;
 
-    /* open tuner */
-    /* case 1: specified tuner device */
+    // open tuner
+    // case 1: specified tuner device
     if (device)
     {
         tdata->tfd = open(device, O_RDONLY);
@@ -410,7 +412,7 @@ int tune(char* channel, thread_data* tdata, char* device)
         DTV_SetEncrypKey(EncAPKey, 16, EncPCKey, 16, tdata->tfd);
 #endif
 
-        /* power on LNB */
+        // power on LNB
         if (tdata->table->type == CHTYPE_SATELLITE)
         {
             if (ioctl(tdata->tfd, LNB_ENABLE, tdata->lnb) < 0)
@@ -419,7 +421,7 @@ int tune(char* channel, thread_data* tdata, char* device)
             }
         }
 
-        /* tune to specified channel */
+        // tune to specified channel
         while (ioctl(tdata->tfd, SET_CHANNEL, &freq) < 0)
         {
             if (tdata->tune_persistent)
@@ -444,7 +446,7 @@ int tune(char* channel, thread_data* tdata, char* device)
     }
     else
     {
-        /* case 2: loop around available devices */
+        // case 2: loop around available devices
         if (tdata->table->type == CHTYPE_SATELLITE)
         {
             tuner = bsdev;
@@ -471,7 +473,7 @@ int tune(char* channel, thread_data* tdata, char* device)
                 DTV_SetEncrypKey(EncAPKey, 16, EncPCKey, 16, tdata->tfd);
 #endif
 
-                /* power on LNB */
+                // power on LNB
                 if (tdata->table->type == CHTYPE_SATELLITE)
                 {
                     if (ioctl(tdata->tfd, LNB_ENABLE, tdata->lnb) < 0)
@@ -480,11 +482,10 @@ int tune(char* channel, thread_data* tdata, char* device)
                     }
                 }
 
-                /* tune to specified channel */
+                // tune to specified channel
                 if (tdata->tune_persistent)
                 {
-                    while (ioctl(tdata->tfd, SET_CHANNEL, &freq) < 0 &&
-                            count < MAX_RETRY)
+                    while (ioctl(tdata->tfd, SET_CHANNEL, &freq) < 0 && count < MAX_RETRY)
                     {
                         if (f_exit)
                         {
@@ -518,12 +519,12 @@ int tune(char* channel, thread_data* tdata, char* device)
                     fprintf(stderr, "device = %s\n", tuner[lp]);
                 }
 
-                /* found suitable tuner */
+                // found suitable tuner
                 break;
             }
         }
 
-        /* all tuners cannot be used */
+        // all tuners cannot be used
         if (tdata->tfd < 0)
         {
             fprintf(stderr, "Cannot tune to the specified channel\n");
@@ -533,10 +534,10 @@ int tune(char* channel, thread_data* tdata, char* device)
 
     if (!tdata->tune_persistent)
     {
-        /* show signal strength */
+        // show signal strength
         calc_cn(tdata->tfd, tdata->table->type, FALSE);
     }
 
-    /* success */
+    // success
     return 0;
 }

@@ -1,4 +1,3 @@
-/* -*- tab-width: 4; indent-tabs-mode: nil -*- */
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -32,7 +31,7 @@
 #include <sys/msg.h>
 #include "tssplitter_lite.h"
 
-/* prototypes */
+// prototypes
 int tune(char* channel, thread_data* tdata, char* device);
 int close_tuner(thread_data* tdata);
 
@@ -41,7 +40,7 @@ void cleanup(thread_data* tdata)
     f_exit = TRUE;
 }
 
-/* will be signal handler thread */
+// will be signal handler thread
 void* process_signals(void* data)
 {
     sigset_t waitset;
@@ -65,13 +64,13 @@ void* process_signals(void* data)
             cleanup(tdata);
             break;
 
-        /* normal exit*/
+        // normal exit
         case SIGUSR1:
             cleanup(tdata);
             break;
     }
 
-    /* dummy */
+    // dummy
     return NULL;
 }
 
@@ -116,19 +115,19 @@ int main(int argc, char** argv)
     int option_index;
     struct option long_options[] =
     {
-        { "bell",      0, NULL, 'b'},
-        { "help",      0, NULL, 'h'},
-        { "version",   0, NULL, 'v'},
-        { "list",      0, NULL, 'l'},
-        { "LNB",       1, NULL, 'n'},
-        { "lnb",       1, NULL, 'n'},
-        { "device",    1, NULL, 'd'},
-        /* terminate */
-        {0, 0, NULL, 0}
+        { "bell",       0, NULL, 'b'},
+        { "help",       0, NULL, 'h'},
+        { "version",    0, NULL, 'v'},
+        { "list",       0, NULL, 'l'},
+        { "LNB",        1, NULL, 'n'},
+        { "lnb",        1, NULL, 'n'},
+        { "device",     1, NULL, 'd'},
+        // terminate
+        { 0, 0, NULL, 0 }
     };
     int val;
     char* device = NULL;
-    char* voltage[] = {"0V", "11V", "15V"};
+    char* voltage[] = { "0V", "11V", "15V" };
     boolean use_bell = FALSE;
 
     while ((result = getopt_long(argc, argv, "bhvln:d:", long_options, &option_index)) != -1)
@@ -161,7 +160,7 @@ int main(int argc, char** argv)
                 exit(0);
                 break;
 
-            /* following options require argument */
+            // following options require argument
             case 'n':
                 val = atoi(optarg);
 
@@ -196,12 +195,13 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    /* set tune_persistent flag */
+    // set tune_persistent flag
     tdata.tune_persistent = TRUE;
-    /* spawn signal handler thread */
+
+    // spawn signal handler thread
     init_signal_handlers(&signal_thread, &tdata);
 
-    /* tune */
+    // tune
     if (tune(argv[optind], &tdata, device) != 0)
     {
         return 1;
@@ -214,16 +214,16 @@ int main(int argc, char** argv)
             break;
         }
 
-        /* show signal strength */
+        // show signal strength
         calc_cn(tdata.tfd, tdata.table->type, use_bell);
         sleep(1);
     }
 
-    /* wait for signal thread */
+    // wait for signal thread
     pthread_kill(signal_thread, SIGUSR1);
     pthread_join(signal_thread, NULL);
 
-    /* close tuner */
+    // close tuner
     if (close_tuner(&tdata) != 0)
     {
         return 1;

@@ -44,7 +44,7 @@ typedef struct decoder_options
 
 #endif
 
-/* prototypes */
+// prototypes
 decoder* b25_startup(decoder_options* opt);
 int b25_shutdown(decoder* dec);
 int b25_decode(decoder* dec, ARIB_STD_B25_BUFFER* sbuf, ARIB_STD_B25_BUFFER* dbuf);

@@ -1,4 +1,3 @@
-/* -*- tab-width: 4; indent-tabs-mode: nil -*- */
 #include <stdio.h>
 #include <fcntl.h>
 #include <sys/types.h>
@@ -37,16 +36,16 @@
 #include "tssplitter_lite.h"
 #include "asicen_dtv.h"
 
-/* maximum write length at once */
+// maximum write length at once
 #define SIZE_CHANK 1316
 
-/* ipc message size */
+// ipc message size
 #define MSGSZ 255
 
-/* globals */
+// globals
 extern boolean f_exit;
 
-/* read 1st line from socket */
+// read 1st line from socket
 void read_line(int socket, char* p)
 {
     while (1)
@@ -76,14 +75,13 @@ void read_line(int socket, char* p)
     *p = '\0';
 }
 
-
-/* will be ipc message receive thread */
+// will be ipc message receive thread
 void* mq_recv(void* t)
 {
     thread_data* tdata = (thread_data*)t;
     message_buf rbuf;
     char channel[16];
-    char service_id[32] = {0};
+    char service_id[32] = { 0 };
     int recsec = 0;
     int time_to_add = 0;
 
@@ -108,10 +106,11 @@ void* mq_recv(void* t)
             }
 
             tdata->table = table;
-            /* stop stream */
+
+            // stop stream
             ioctl(tdata->tfd, STOP_REC, 0);
 
-            /* wait for remainder */
+            // wait for remainder
             while (tdata->queue->num_used > 0)
             {
                 usleep(10000);
@@ -119,7 +118,7 @@ void* mq_recv(void* t)
 
             if (tdata->table->type != current_type)
             {
-                /* re-open device */
+                // re-open device
                 if (close_tuner(tdata) != 0)
                 {
                     return NULL;
@@ -129,7 +128,7 @@ void* mq_recv(void* t)
             }
             else
             {
-                /* SET_CHANNEL only */
+                // SET_CHANNEL only
                 const FREQUENCY freq =
                 {
                     .frequencyno = tdata->table->set_freq,
@@ -145,7 +144,7 @@ void* mq_recv(void* t)
                 calc_cn(tdata->tfd, tdata->table->type, FALSE);
             }
 
-            /* restart recording */
+            // restart recording
             if (ioctl(tdata->tfd, START_REC, 0) < 0)
             {
                 fprintf(stderr, "Tuner cannot start recording\n");
@@ -216,16 +215,16 @@ void destroy_queue(QUEUE_T* p_queue)
     free(p_queue);
 }
 
-/* enqueue data. this function will block if queue is full. */
+// enqueue data. this function will block if queue is full.
 void enqueue(QUEUE_T* p_queue, BUFSZ* data)
 {
     struct timeval now;
     struct timespec spec;
     int retry_count = 0;
     pthread_mutex_lock(&p_queue->mutex);
-    /* entered critical section */
+    // entered critical section
 
-    /* wait while queue is full */
+    // wait while queue is full
     while (p_queue->num_avail == 0)
     {
         gettimeofday(&now, NULL);
@@ -247,18 +246,21 @@ void enqueue(QUEUE_T* p_queue, BUFSZ* data)
     }
 
     p_queue->buffer[p_queue->in] = data;
-    /* move position marker for input to next position */
+
+    // move position marker for input to next position
     p_queue->in++;
     p_queue->in %= p_queue->size;
-    /* update counters */
+
+    // update counters
     p_queue->num_avail--;
     p_queue->num_used++;
-    /* leaving critical section */
+
+    // leaving critical section
     pthread_mutex_unlock(&p_queue->mutex);
     pthread_cond_signal(&p_queue->cond_used);
 }
 
-/* dequeue data. this function will block if queue is empty. */
+// dequeue data. this function will block if queue is empty.
 BUFSZ* dequeue(QUEUE_T* p_queue)
 {
     struct timeval now;
@@ -266,9 +268,9 @@ BUFSZ* dequeue(QUEUE_T* p_queue)
     BUFSZ* buffer;
     int retry_count = 0;
     pthread_mutex_lock(&p_queue->mutex);
-    /* entered the critical section*/
+    // entered the critical section
 
-    /* wait while queue is empty */
+    // wait while queue is empty
     while (p_queue->num_used == 0)
     {
         gettimeofday(&now, NULL);
@@ -289,21 +291,25 @@ BUFSZ* dequeue(QUEUE_T* p_queue)
         }
     }
 
-    /* take buffer address */
+    // take buffer address
     buffer = p_queue->buffer[p_queue->out];
-    /* move position marker for output to next position */
+
+    // move position marker for output to next position
     p_queue->out++;
     p_queue->out %= p_queue->size;
-    /* update counters */
+
+    // update counters
     p_queue->num_avail++;
     p_queue->num_used--;
-    /* leaving the critical section */
+
+    // leaving the critical section
     pthread_mutex_unlock(&p_queue->mutex);
     pthread_cond_signal(&p_queue->cond_avail);
+
     return buffer;
 }
 
-/* this function will be reader thread */
+// this function will be reader thread
 void* reader_func(void* p)
 {
     thread_data* tdata = (thread_data*)p;
@@ -320,7 +326,9 @@ void* reader_func(void* p)
     // struct sockaddr_in *addr = NULL;
     BUFSZ* qbuf;
     static splitbuf_t splitbuf;
-    ARIB_STD_B25_BUFFER sbuf, dbuf, buf;
+    ARIB_STD_B25_BUFFER sbuf;
+    ARIB_STD_B25_BUFFER dbuf;
+    ARIB_STD_B25_BUFFER buf;
     int code;
     int split_select_finish = TSS_ERROR;
     buf.size = 0;
@@ -345,7 +353,7 @@ void* reader_func(void* p)
         int file_err = 0;
         qbuf = dequeue(p_queue);
 
-        /* no entry in the queue */
+        // no entry in the queue
         if (qbuf == NULL)
         {
             break;
@@ -353,7 +361,9 @@ void* reader_func(void* p)
 
         sbuf.data = qbuf->buffer;
         sbuf.size = qbuf->size;
-        buf = sbuf; /* default */
+
+        // default
+        buf = sbuf;
 
         if (use_b25)
         {
@@ -374,7 +384,7 @@ void* reader_func(void* p)
         {
             splitbuf.buffer_filled = 0;
 
-            /* allocate split buffer */
+            // allocate split buffer
             if (splitbuf.buffer_size < buf.size && buf.size > 0)
             {
                 splitbuf.buffer = realloc(splitbuf.buffer, buf.size);
@@ -389,14 +399,14 @@ void* reader_func(void* p)
 
             while (buf.size)
             {
-                /* 分離対象PIDの抽出 */
+                // 分離対象PIDの抽出
                 if (split_select_finish != TSS_SUCCESS)
                 {
                     split_select_finish = split_select(splitter, &buf);
 
                     if (split_select_finish == TSS_NULL)
                     {
-                        /* mallocエラー発生 */
+                        // mallocエラー発生
                         fprintf(stderr, "split_select malloc failed\n");
                         use_splitter = FALSE;
                         goto fin;
@@ -419,7 +429,7 @@ void* reader_func(void* p)
                     }
                 }
 
-                /* 分離対象以外をふるい落とす */
+                // 分離対象以外をふるい落とす
                 code = split_ts(splitter, &buf, &splitbuf);
 
                 if (code == TSS_NULL)
@@ -443,7 +453,7 @@ fin:
 
         if (!fileless)
         {
-            /* write data to output file */
+            // write data to output file
             int size_remain = buf.size;
             int offset = 0;
 
@@ -467,7 +477,7 @@ fin:
 
         if (use_udp && sfd != -1)
         {
-            /* write data to socket */
+            // write data to socket
             int size_remain = buf.size;
             int offset = 0;
 
@@ -494,10 +504,10 @@ fin:
         free(qbuf);
         qbuf = NULL;
 
-        /* normal exit */
+        // normal exit
         if ((f_exit && !p_queue->num_used) || file_err)
         {
-            /* default */
+            // default
             buf = sbuf;
 
             if (use_b25)
@@ -516,7 +526,7 @@ fin:
 
             if (use_splitter)
             {
-                /* 分離対象以外をふるい落とす */
+                // 分離対象以外をふるい落とす
                 code = split_ts(splitter, &buf, &splitbuf);
 
                 if (code == TSS_NULL)
@@ -572,8 +582,8 @@ fin:
 
     time_t cur_time;
     time(&cur_time);
-    fprintf(stderr, "Recorded %dsec\n",
-            (int)(cur_time - tdata->start_time));
+    fprintf(stderr, "Recorded %dsec\n", (int)(cur_time - tdata->start_time));
+
     return NULL;
 }
 
@@ -613,14 +623,14 @@ void show_options(void)
 
 void cleanup(thread_data* tdata)
 {
-    /* stop recording */
+    // stop recording
     ioctl(tdata->tfd, STOP_REC, 0);
     f_exit = TRUE;
     pthread_cond_signal(&tdata->queue->cond_avail);
     pthread_cond_signal(&tdata->queue->cond_used);
 }
 
-/* will be signal handler thread */
+// will be signal handler thread
 void* process_signals(void* t)
 {
     sigset_t waitset;
@@ -651,19 +661,19 @@ void* process_signals(void* t)
             cleanup(tdata);
             break;
 
-        /* normal exit*/
+        // normal exit
         case SIGUSR1:
             cleanup(tdata);
             break;
 
-        /* error */
+        // error
         case SIGUSR2:
             fprintf(stderr, "Detected an error. cleaning up...\n");
             cleanup(tdata);
             break;
     }
 
-    /* dummy */
+    // dummy
     return NULL;
 }
 
@@ -698,11 +708,11 @@ int main(int argc, char** argv)
     static thread_data tdata;
     decoder_options dopt =
     {
-        /* round */
+        // round
         4,
-        /* strip */
+        // strip
         0,
-        /* emm */
+        // emm
         0
     };
     tdata.dopt = &dopt;
@@ -730,8 +740,8 @@ int main(int argc, char** argv)
         { "version",   0, NULL, 'v'},
         { "list",      0, NULL, 'l'},
         { "sid",       1, NULL, 'i'},
-        /* terminate */
-        {0, 0, NULL, 0}
+        // terminate
+        { 0, 0, NULL, 0 }
     };
     boolean use_b25 = FALSE;
     boolean use_udp = FALSE;
@@ -745,9 +755,10 @@ int main(int argc, char** argv)
     sock_data* sockdata = NULL;
     char* device = NULL;
     int val;
-    char* voltage[] = {"0V", "11V", "15V"};
+    char* voltage[] = { "0V", "11V", "15V" };
     char* sid_list = NULL;
-    int connected_socket = 0, listening_socket = 0;
+    int connected_socket = 0;
+    int listening_socket = 0;
     unsigned int len;
     char* channel = NULL;
 
@@ -804,7 +815,7 @@ int main(int argc, char** argv)
                 exit(0);
                 break;
 
-            /* following options require argument */
+            // following options require argument
             case 'n':
                 val = atoi(optarg);
 
@@ -934,13 +945,13 @@ int main(int argc, char** argv)
 
         fprintf(stderr, "pid = %d\n", getpid());
 
-        /* tune */
+        // tune
         if (tune(argv[optind], &tdata, device) != 0)
         {
             return 1;
         }
 
-        /* set recsec */
+        // set recsec
         // no other thread --yaz
         if (parse_time(argv[optind + 1], &tdata.recsec) != 0)
         {
@@ -952,13 +963,14 @@ int main(int argc, char** argv)
             tdata.indefinite = TRUE;
         }
 
-        /* open output file */
+        // open output file
         char* destfile = argv[optind + 2];
 
         if (destfile && !strcmp("-", destfile))
         {
             use_stdout = TRUE;
-            /* stdout */
+
+            // stdout
             tdata.wfd = 1;
         }
         else
@@ -987,7 +999,7 @@ int main(int argc, char** argv)
         }
     }
 
-    /* initialize decoder */
+    // initialize decoder
     if (use_b25)
     {
         decoder = b25_startup(&dopt);
@@ -1031,7 +1043,9 @@ int main(int argc, char** argv)
             char buf[256];
             read_line(connected_socket, buf);
             fprintf(stderr, "request command is %s\n", buf);
-            char s0[256], s1[256], s2[256];
+            char s0[256];
+            char s1[256];
+            char s2[256];
             sscanf(buf, "%s%s%s", s0, s1, s2);
             char delim[] = "/";
             channel = strtok(s1, delim);
@@ -1055,7 +1069,7 @@ int main(int argc, char** argv)
             }
         }
 
-        /* initialize splitter */
+        // initialize splitter
         if (use_splitter)
         {
             splitter = split_startup(sid_list);
@@ -1071,10 +1085,11 @@ int main(int argc, char** argv)
         {
             char header[] =  "HTTP/1.1 200 OK\r\nContent-Type: application/octet-stream\r\nCache-Control: no-cache\r\n\r\n";
             write(connected_socket, header, strlen(header));
-            //set write target to http
+
+            // set write target to http
             tdata.wfd = connected_socket;
 
-            //tune
+            // tune
             if (tune(channel, &tdata, device) != 0)
             {
                 fprintf(stderr, "Tuner cannot start recording\n");
@@ -1083,7 +1098,7 @@ int main(int argc, char** argv)
         }
         else
         {
-            /* initialize udp connection */
+            // initialize udp connection
             if (use_udp)
             {
                 sockdata = calloc(1, sizeof(sock_data));
@@ -1121,18 +1136,21 @@ int main(int argc, char** argv)
             }
         }
 
-        /* prepare thread data */
+        // prepare thread data
         tdata.queue = p_queue;
         tdata.decoder = decoder;
         tdata.splitter = splitter;
         tdata.sock_data = sockdata;
         tdata.tune_persistent = FALSE;
-        /* spawn signal handler thread */
+
+        // spawn signal handler thread
         init_signal_handlers(&signal_thread, &tdata);
-        /* spawn reader thread */
+
+        // spawn reader thread
         tdata.signal_thread = signal_thread;
         pthread_create(&reader_thread, NULL, reader_func, &tdata);
-        /* spawn ipc thread */
+
+        // spawn ipc thread
         key_t key;
         key = (key_t)getpid();
 
@@ -1143,7 +1161,7 @@ int main(int argc, char** argv)
 
         pthread_create(&ipc_thread, NULL, mq_recv, &tdata);
 
-        /* start recording */
+        // start recording
         if (ioctl(tdata.tfd, START_REC, 0) < 0)
         {
             fprintf(stderr, "Tuner cannot start recording\n");
@@ -1153,7 +1171,7 @@ int main(int argc, char** argv)
         fprintf(stderr, "\nRecording...\n");
         time(&tdata.start_time);
 
-        /* read from tuner */
+        // read from tuner
         while (1)
         {
             if (f_exit)
@@ -1188,22 +1206,21 @@ int main(int argc, char** argv)
             }
 
 #ifdef ASV5220_USE_APKEY1
-
             if ((bufptr->size % 188) == 0)
             {
                 DTV_GetDecryptData(bufptr->buffer, bufptr->size / 188, bufptr->buffer, tdata.tfd);
             }
-
 #endif
             enqueue(p_queue, bufptr);
-            /* stop recording */
+
+            // stop recording
             time(&cur_time);
 
             if ((cur_time - tdata.start_time) >= tdata.recsec && !tdata.indefinite)
             {
                 ioctl(tdata.tfd, STOP_REC, 0);
 
-                /* read remaining data */
+                // read remaining data
                 while (1)
                 {
                     bufptr = malloc(sizeof(BUFSZ));
@@ -1230,49 +1247,51 @@ int main(int argc, char** argv)
             }
         }
 
-        /* delete message queue*/
+        // delete message queue
         msgctl(tdata.msqid, IPC_RMID, NULL);
         pthread_kill(signal_thread, SIGUSR1);
-        /* wait for threads */
+
+        // wait for threads
         pthread_join(reader_thread, NULL);
         pthread_join(signal_thread, NULL);
         pthread_join(ipc_thread, NULL);
 
-        /* close tuner */
+        // close tuner
         if (close_tuner(&tdata) != 0)
         {
             return 1;
         }
 
-        /* release queue */
+        // release queue
         destroy_queue(p_queue);
 
         if (use_http)
         {
             // reset queue
             p_queue = create_queue(MAX_QUEUE);
-            /* close http socket */
+
+            // close http socket
             close(tdata.wfd);
             fprintf(stderr, "connection closed. still listening at port %d\n", port_http);
             f_exit = FALSE;
         }
         else
         {
-            /* close output file */
+            // close output file
             if (!use_stdout)
             {
                 fsync(tdata.wfd);
                 close(tdata.wfd);
             }
 
-            /* free socket data */
+            // free socket data
             if (use_udp)
             {
                 close(sockdata->sfd);
                 free(sockdata);
             }
 
-            /* release decoder */
+            // release decoder
             if (!use_http)
             {
                 if (use_b25)

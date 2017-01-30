@@ -9,7 +9,7 @@
 #include <getopt.h>
 #include "recpt1core.h"
 
-#define MSGSZ   255
+#define MSGSZ 255
 
 void show_usage(char* cmd)
 {
@@ -35,7 +35,8 @@ int main(int argc, char** argv)
     int msqid;
     int msgflg = IPC_CREAT | 0666;
     key_t key = 0;
-    int recsec = 0, extsec = 0;
+    int recsec = 0;
+    int extsec = 0;
     char* channel = NULL;
     message_buf sbuf;
     size_t buf_length;
@@ -44,15 +45,16 @@ int main(int argc, char** argv)
     int option_index;
     struct option long_options[] =
     {
-        { "pid",       1, NULL, 'p'},
-        { "channel",   1, NULL, 'c'},
-        { "sid",       1, NULL, 'i'},
-        { "extend",    1, NULL, 'e'},
-        { "time",      1, NULL, 't'},
-        { "help",      0, NULL, 'h'},
-        { "version",   0, NULL, 'v'},
-        { "list",      0, NULL, 'l'},
-        {0, 0, NULL, 0} /* terminate */
+        { "pid",        1, NULL, 'p'},
+        { "channel",    1, NULL, 'c'},
+        { "sid",        1, NULL, 'i'},
+        { "extend",     1, NULL, 'e'},
+        { "time",       1, NULL, 't'},
+        { "help",       0, NULL, 'h'},
+        { "version",    0, NULL, 'v'},
+        { "list",       0, NULL, 'l'},
+        // terminate
+        { 0, 0, NULL, 0 }
     };
 
     while ((result = getopt_long(argc, argv, "p:c:i:e:t:hvl", long_options, &option_index)) != -1)
@@ -81,7 +83,7 @@ int main(int argc, char** argv)
                 exit(0);
                 break;
 
-            /* following options require argument */
+            // following options require argument
             case 'p':
                 key = (key_t)atoi(optarg);
                 fprintf(stderr, "Pid = %d\n", key);

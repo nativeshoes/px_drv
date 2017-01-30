@@ -127,7 +127,7 @@ int b25_finish(decoder* dec, ARIB_STD_B25_BUFFER* sbuf, ARIB_STD_B25_BUFFER* dbu
 
 #else
 
-/* functions */
+// functions
 decoder* b25_startup(decoder_options* opt)
 {
     return NULL;

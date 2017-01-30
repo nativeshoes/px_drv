@@ -30,12 +30,12 @@
 #define SET_BCAS_COMMAND    _IOW(0x8D, 0x87, int *)
 #define GET_BCAS_COMMAND    _IOR(0x8D, 0x88, int *)
 
-#define BCAS_Reset      0
-#define BCAS_IDLE       1
-#define BCAS_StartWtCmd 2
-#define BCAS_WaitRdCmd  3
-#define BCAS_SendChain  4
-#define BCAS_CmdOK      5
+#define BCAS_Reset          0
+#define BCAS_IDLE           1
+#define BCAS_StartWtCmd     2
+#define BCAS_WaitRdCmd      3
+#define BCAS_SendChain      4
+#define BCAS_CmdOK          5
 
 typedef struct _AUSBDTV_GEN_ENCSEED_STRUCTURE
 {
@@ -207,7 +207,7 @@ int DTV_Get_RandomKey(unsigned char* pRandomKey, int InputSz, HANDLE hDeviceHand
     return success;
 }
 
-int DTV_SetEncrypKey(unsigned char* APEncSeed, unsigned char APEncSeedLen,	unsigned char* PCKey, unsigned char PCKeyLen, HANDLE hDeviceHandle)
+int DTV_SetEncrypKey(unsigned char* APEncSeed, unsigned char APEncSeedLen, unsigned char* PCKey, unsigned char PCKeyLen, HANDLE hDeviceHandle)
 {
     int success;
     AUSBDTV_GEN_ENCSEED_STRUCTURE DTV_GEN_ENCSEED_Data;

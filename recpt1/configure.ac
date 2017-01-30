@@ -1,4 +1,4 @@
-#                                               -*- Autoconf -*-
+# -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.59)
@@ -11,8 +11,8 @@ AC_PROG_CC
 
 # Checks for b25 support.
 AC_ARG_ENABLE(b25,
-  [AS_HELP_STRING([--enable-b25],[enable b25 support])],
-  [AC_CHECK_LIB([arib25], [create_arib_std_b25], , [AC_MSG_WARN(libarb25 is not available.)], [-lpcsclite])]
+    [AS_HELP_STRING([--enable-b25],[enable b25 support])],
+    [AC_CHECK_LIB([arib25], [create_arib_std_b25], , [AC_MSG_WARN(libarb25 is not available.)], [-lpcsclite])]
 )
 
 # Checks for libraries.

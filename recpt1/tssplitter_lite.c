@@ -27,7 +27,7 @@
 #include "recpt1.h"
 #include "tssplitter_lite.h"
 
-/* prototypes */
+// prototypes
 static int ReadTs(splitter* sp, ARIB_STD_B25_BUFFER* sbuf);
 static int AnalyzePat(splitter* sp, unsigned char* buf);
 static int RecreatePat(splitter* sp, unsigned char* buf, int* pos);
@@ -46,11 +46,11 @@ static char** AnalyzeSid(char* sid)
     char** sid_list = NULL;
     char* p;
     int CommaNum = 0;
-    /* sid は次の形式の引数を許容する */
-    /* 指定無し */
-    /* SID[0] */
-    /* SID[0],SID[1],...,SID[N-1],SID[N] */
-    /*カンマの数を数える*/
+    // sid は次の形式の引数を許容する
+    // 指定無し
+    // SID[0]
+    // SID[0],SID[1],...,SID[N-1],SID[N]
+    // カンマの数を数える
     p = sid;
 
     while (*p != '\0')
@@ -63,7 +63,7 @@ static char** AnalyzeSid(char* sid)
         p++;
     }
 
-    /* sid_listの数はカンマの数+2(NULL止めするから) */
+    // sid_listの数はカンマの数+2(NULL止めするから)
     sid_list = malloc(sizeof(char*) * (CommaNum + 2));
 
     if (sid_list == NULL)
@@ -72,7 +72,7 @@ static char** AnalyzeSid(char* sid)
         return NULL;
     }
 
-    /* sidが空である場合 */
+    // sidが空である場合
     p = sid;
 
     if (strlen(p) == 0)
@@ -81,7 +81,7 @@ static char** AnalyzeSid(char* sid)
         return sid_list;
     }
 
-    /* カンマ無し */
+    // カンマ無し
     if (CommaNum == 0)
     {
         sid_list[0] = sid;
@@ -89,14 +89,14 @@ static char** AnalyzeSid(char* sid)
         return sid_list;
     }
 
-    /* カンマ区切りで複数指定時 */
+    // カンマ区切りで複数指定時
     i = 0;
     p = sid;
 
-    /* 文字列端に到達するか、カンマ数が数えた数に達したら終了 */
+    // 文字列端に到達するか、カンマ数が数えた数に達したら終了
     while ((*p != '\0') || i < CommaNum)
     {
-        /* 現在の処理位置をsid_list[i]にセット */
+        // 現在の処理位置をsid_list[i]にセット
         /* このタイミングの p は
          * ・sid先頭
          * ・[,]の次の文字
@@ -104,21 +104,23 @@ static char** AnalyzeSid(char* sid)
          */
         sid_list[i] = p;
         i++;
-        /* 最初に現れる[,]をNULL文字で置換する */
+
+        // 最初に現れる[,]をNULL文字で置換する
         p = strchr(p, C_CHAR_COMMA);
 
         if (p == NULL)
         {
-            /* カンマが見つからない場合は最後の処理対象なので終了 */
+            // カンマが見つからない場合は最後の処理対象なので終了
             break;
         }
 
         *p = '\0';
-        /* 処理位置をNULLで置換した文字の次の位置に設定する */
+
+        // 処理位置をNULLで置換した文字の次の位置に設定する
         p++;
     }
 
-    /* 最後のsid_list[n]はNULLポインタで止める */
+    // 最後のsid_list[n]はNULLポインタで止める
     sid_list[i] = NULL;
     i = 0;
 
@@ -128,13 +130,12 @@ static char** AnalyzeSid(char* sid)
     }
 
 #if 0
-
     for (i = 0; sid_list[i] != NULL; i++)
     {
         printf("sid_list[%d]=[%s].\n", i, sid_list[i]);
     }
-
 #endif
+
     return sid_list;
 }
 
@@ -216,15 +217,15 @@ void split_shutdown(splitter* sp)
  * 対象のチャンネル番号のみの PAT の再構築と出力対象 PID の抽出を行う
  */
 #if 0
-unsigned char** pat,				// [out]	PAT 情報（再構築後）
-         unsigned char* pids,				// [out]	出力対象 PID 情報
-         char** sid_list,					// [in]		出力対象サービス ID のリスト
-         unsigned char* pmt_pids,			// [in]		出力対象PIDのPMT PID
-         ,           			// [in]		pt1_drvの入力TS
-         int* pmt_retain,						// [in]		残すべきPMTの数
-         int* pmt_counter					// [out]	残したPMTの数
+    unsigned char** pat,        // [out]    PAT 情報（再構築後）
+    unsigned char* pids,        // [out]    出力対象 PID 情報
+    char** sid_list,            // [in]     出力対象サービス ID のリスト
+    unsigned char* pmt_pids,    // [in]     出力対象PIDのPMT PID
+    ,                           // [in]     pt1_drvの入力TS
+    int* pmt_retain,            // [in]     残すべきPMTの数
+    int* pmt_counter            // [out]    残したPMTの数
 #endif
-         static int ReadTs(splitter* sp, ARIB_STD_B25_BUFFER* sbuf)
+static int ReadTs(splitter* sp, ARIB_STD_B25_BUFFER* sbuf)
 {
     int length = sbuf->size;
     int pid;
@@ -244,17 +245,17 @@ unsigned char** pat,				// [out]	PAT 情報（再構築後）
 
             if (result != TSS_SUCCESS)
             {
-                /* 下位の関数内部でmalloc error発生 */
+                // 下位の関数内部でmalloc error発生
                 return result;
             }
         }
 
         // PMT
-        /* 残すpmt_pidである場合には、pmtに書かれている
-         * 残すべきPCR/AUDIO/VIDEO PIDを取得する */
+        // 残すpmt_pidである場合には、pmtに書かれている
+        // 残すべきPCR/AUDIO/VIDEO PIDを取得する
         if (sp->pmt_pids[pid] == 1)
         {
-            /* この中にはPMT毎に一度しか入らないようにしておく */
+            // この中にはPMT毎に一度しか入らないようにしておく
             analyze_result = AnalyzePmt(sp, sbuf->data + index, 1);
 
             if (TSS_SUCCESS == analyze_result)
@@ -266,9 +267,8 @@ unsigned char** pat,				// [out]	PAT 情報（再構築後）
             }
         }
 
-        /* 録画する全てのPMTについて、中にあるPCR/AUDIO/VIDEOのPIDを
-         * 得る */
-        /* pmt_counter と pmt_retain が一致する場合に条件は満たされる */
+        // 録画する全てのPMTについて、中にあるPCR/AUDIO/VIDEOのPIDを得る
+        // pmt_counter と pmt_retain が一致する場合に条件は満たされる
         if (sp->pmt_counter == sp->pmt_retain)
         {
             result = TSS_SUCCESS;
@@ -322,6 +322,7 @@ static int RescanPID(splitter* splitter, unsigned char* buf)
 
     return result;
 }
+
 /**
  * TS 分離処理
  *  splitter    [in]    splitterパラメータ
@@ -331,13 +332,15 @@ static int RescanPID(splitter* splitter, unsigned char* buf)
 int split_ts(splitter* splitter, ARIB_STD_B25_BUFFER* sbuf, splitbuf_t* dbuf)
 {
     int pid;
-    unsigned char* sptr, *dptr;
+    unsigned char* sptr;
+    unsigned char* dptr;
     int s_offset = 0;
     int d_offset = 0;
     int result = TSS_SUCCESS;
     int pmts = 0;
     int version = 0;
-    /* 初期化 */
+
+    // 初期化
     dbuf->buffer_filled = 0;
 
     if (sbuf->size < 0)
@@ -356,7 +359,6 @@ int split_ts(splitter* splitter, ARIB_STD_B25_BUFFER* sbuf, splitbuf_t* dbuf)
         {
             // PAT
             case 0x0000:
-
                 // 巡回カウンタカウントアップ
                 if (0xFF == splitter->pat_count)
                 {
@@ -381,8 +383,8 @@ int split_ts(splitter* splitter, ARIB_STD_B25_BUFFER* sbuf, splitbuf_t* dbuf)
             default:
                 if (0 != splitter->pmt_pids[pid])
                 {
-                    //PMT
-                    if ((sptr + s_offset)[1] & 0x40)  		// PES開始インジケータ
+                    // PMT
+                    if ((sptr + s_offset)[1] & 0x40) // PES開始インジケータ
                     {
                         // バージョンチェック
                         for (pmts = 0; splitter->pmt_retain > pmts; pmts++)
@@ -395,7 +397,7 @@ int split_ts(splitter* splitter, ARIB_STD_B25_BUFFER* sbuf, splitbuf_t* dbuf)
                         }
 
                         if ((version != ((sptr + s_offset)[10] & 0x3e))
-                                || (splitter->pmt_retain != splitter->pmt_counter))
+                            || (splitter->pmt_retain != splitter->pmt_counter))
                         {
                             // 再チェック
                             result = RescanPID(splitter, sptr + s_offset);
@@ -411,7 +413,7 @@ int split_ts(splitter* splitter, ARIB_STD_B25_BUFFER* sbuf, splitbuf_t* dbuf)
                     }
                 }
 
-                /* pids[pid] が 1 は残すパケットなので書き込む */
+                // pids[pid] が 1 は残すパケットなので書き込む
                 if (0 != splitter->pids[pid])
                 {
                     memcpy(dptr + d_offset, sptr + s_offset, LENGTH_PACKET);
@@ -435,19 +437,20 @@ int split_ts(splitter* splitter, ARIB_STD_B25_BUFFER* sbuf, splitbuf_t* dbuf)
  */
 #if 0
 splitter* sp
-unsigned char** pat,				// [out]	PAT 情報（再構築後）
-unsigned char* pids,				// [out]	出力対象 PID 情報
-char** sid_list,					// [in]		出力対象サービス ID のリスト
-unsigned char* pmt_pids,			// [out]	サービス ID に対応する PMT の PID
-int* pmt_retain						// [out]	残すPMTの数
-
-unsigned char* buf,					// [in]		読み込んだバッファ
+unsigned char** pat,        // [out]    PAT 情報（再構築後）
+unsigned char* pids,        // [out]    出力対象 PID 情報
+char** sid_list,            // [in]     出力対象サービス ID のリスト
+unsigned char* pmt_pids,    // [out]    サービス ID に対応する PMT の PID
+int* pmt_retain             // [out]    残すPMTの数
+unsigned char* buf,         // [in]     読み込んだバッファ
 #endif
 static int AnalyzePat(splitter* sp, unsigned char* buf)
 {
     int pos[MAX_PID];
     int service_id;
-    int i, j, k;
+    int i;
+    int j;
+    int k;
     int size = 0;
     int pid;
     int result = TSS_SUCCESS;
@@ -463,12 +466,12 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
 
     if (pat == NULL)
     {
-        /* 初期化 */
+        // 初期化
         sp->pmt_retain = 0;
         memset(pos, 0, sizeof(pos));
         size = buf[7];
 
-        /* prescan SID/PMT */
+        // prescan SID/PMT
         for (i = 13, j = 0; i < (size + 8) - 4; i = i + 4)
         {
             pid = GetPid(&buf[i + 2]);
@@ -486,8 +489,8 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
         sp->num_pmts = j;
 
         // 対象チャンネル判定
-        /* size + 8 = パケット全長 */
-        /* 最終 4 バイトはCRCなので飛ばす */
+        // size + 8 = パケット全長
+        // 最終 4 バイトはCRCなので飛ばす
         for (i = 13; i < (size + 8) - 4; i = i + 4)
         {
             pid = GetPid(&buf[i + 2]);
@@ -504,8 +507,8 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
             {
                 if (service_id == atoi(*p))
                 {
-                    /* 録画対象の pmt_pids は 1 とする */
-                    /* 録画対象の pmt の pids は 1 とする */
+                    // 録画対象の pmt_pids は 1 とする
+                    // 録画対象の pmt の pids は 1 とする
                     pid = GetPid(&buf[i + 2]);
                     *(pmt_pids + pid) = 1;
                     *(pids + pid) = 1;
@@ -519,7 +522,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
                 }
                 else if (!strcasecmp(*p, "hd") || !strcasecmp(*p, "sd1"))
                 {
-                    /* hd/sd1 指定時には1番目のサービスを保存する */
+                    // hd/sd1 指定時には1番目のサービスを保存する
                     if (service_id == avail_sids[0])
                     {
                         pid = GetPid(&buf[i + 2]);
@@ -537,7 +540,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
                 }
                 else if (!strcasecmp(*p, "sd2"))
                 {
-                    /* sd2 指定時には2番目のサービスを保存する */
+                    // sd2 指定時には2番目のサービスを保存する
                     if (service_id == avail_sids[1])
                     {
                         pid = GetPid(&buf[i + 2]);
@@ -555,7 +558,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
                 }
                 else if (!strcasecmp(*p, "sd3"))
                 {
-                    /* sd3 指定時には3番目のサービスを保存する */
+                    // sd3 指定時には3番目のサービスを保存する
                     if (service_id == avail_sids[2])
                     {
                         pid = GetPid(&buf[i + 2]);
@@ -573,7 +576,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
                 }
                 else if (!strcasecmp(*p, "1seg"))
                 {
-                    /* 1seg 指定時には PMTPID=0x1FC8 のサービスを保存する */
+                    // 1seg 指定時には PMTPID=0x1FC8 のサービスを保存する
                     pid = GetPid(&buf[i + 2]);
 
                     if (pid == 0x1FC8)
@@ -592,7 +595,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
                 }
                 else if (!strcasecmp(*p, "all"))
                 {
-                    /* all指定時には全保存する */
+                    // all指定時には全保存する
                     pid = GetPid(&buf[i + 2]);
                     *(pmt_pids + pid) = 1;
                     *(pids + pid) = 1;
@@ -605,7 +608,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
                 }
                 else if (!strcasecmp(*p, "epg"))
                 {
-                    /* epg抽出に必要なPIDのみを保存する */
+                    // epg抽出に必要なPIDのみを保存する
                     sid_found    = TRUE;
                     *(pids + 0x11) = 1;
                     *(pids + 0x12) = 1;
@@ -615,10 +618,10 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
                 }
 
                 p++;
-            } /* while */
+            }
         }
 
-        /* if sid has been specified but no sid found, fall back to all */
+        // if sid has been specified but no sid found, fall back to all
         if (*sid_list && !sid_found)
         {
             for (i = 13; i < (size + 8) - 4; i = i + 4)
@@ -642,7 +645,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
             }
         }
 
-        /* print SIDs */
+        // print SIDs
         fprintf(stderr, "Available sid = ");
 
         for (k = 0; k < sp->num_pmts; k++)
@@ -653,7 +656,7 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
         fprintf(stderr, "\n");
         fprintf(stderr, "Chosen sid    =%s\n", chosen_sid);
 #if 1
-        /* print PMTs */
+        // print PMTs
         fprintf(stderr, "Available PMT = ");
 
         for (k = 0; k < sp->num_pmts; k++)
@@ -672,7 +675,6 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
         {
             fprintf(stderr, "%02x ", *(sp->pat + tc));
         }
-
 #endif
     }
 
@@ -685,11 +687,11 @@ static int AnalyzePat(splitter* sp, unsigned char* buf)
  * PMT から出力対象チャンネル以外のチャンネル情報を削除し、PAT を再構築する
  */
 #if 0
-splitter* sp						// [in/out]
-unsigned char** pat,			// [out]	PAT 情報（再構築後）
-unsigned char* pids,			// [out]	出力対象 PID 情報
-unsigned char* buf,					// [in]		読み込んだバッファ
-int* pos							// [in]		取得対象 PMT のバッファ中の位置
+splitter* sp            // [in/out]
+unsigned char** pat,    // [out]    PAT 情報（再構築後）
+unsigned char* pids,    // [out]    出力対象 PID 情報
+unsigned char* buf,     // [in]     読み込んだバッファ
+int* pos                // [in]     取得対象 PMT のバッファ中の位置
 #endif
 static int RecreatePat(splitter* sp, unsigned char* buf, int* pos)
 {
@@ -699,6 +701,7 @@ static int RecreatePat(splitter* sp, unsigned char* buf, int* pos)
     int j;
     int pos_i;
     int pid_num = 0;
+
     // CRC 計算のためのデータ
     {
         // チャンネルによって変わらない部分
@@ -718,7 +721,7 @@ static int RecreatePat(splitter* sp, unsigned char* buf, int* pos)
         {
             if (pos[i] != 0)
             {
-                /* buf[pos_i] を y にコピー(抽出したPIDの数) */
+                // buf[pos_i] を y にコピー(抽出したPIDの数)
                 pos_i = pos[i];
 
                 for (j = 0; j < 4; j++)
@@ -730,10 +733,13 @@ static int RecreatePat(splitter* sp, unsigned char* buf, int* pos)
             }
         }
     }
-    /* パケットサイズ計算 */
+
+    // パケットサイズ計算
     y[2] = pid_num * 4 + 0x0d;
+
     // CRC 計算
     crc = GetCrc32(y, LENGTH_PAT_HEADER + pid_num * 4);
+
     // PAT 再構成
     sp->pat = (unsigned char*)malloc(LENGTH_PACKET);
 
@@ -759,6 +765,7 @@ static int RecreatePat(splitter* sp, unsigned char* buf, int* pos)
     (sp->pat)[6 + LENGTH_PAT_HEADER + pid_num * 4] = (crc >> 16) & 0xFF;
     (sp->pat)[7 + LENGTH_PAT_HEADER + pid_num * 4] = (crc >>  8) & 0xFF;
     (sp->pat)[8 + LENGTH_PAT_HEADER + pid_num * 4] = (crc) & 0xFF;
+
     return (TSS_SUCCESS);
 }
 
@@ -768,8 +775,8 @@ static int RecreatePat(splitter* sp, unsigned char* buf, int* pos)
  * PMT を解析し、保存対象の PID を特定する
  */
 #if 0
-unsigned char* buf,					// [in]		読み込んだバッファ
-unsigned char* pids					// [out]	出力対象 PID 情報
+unsigned char* buf, // [in]     読み込んだバッファ
+unsigned char* pids // [out]    出力対象 PID 情報
 #endif
 static int AnalyzePmt(splitter* sp, unsigned char* buf, unsigned char mark)
 {
@@ -780,12 +787,16 @@ static int AnalyzePmt(splitter* sp, unsigned char* buf, unsigned char mark)
     int pid;
     int retry_count = 0;
     int count;
-    int payload_offset;	// offset to payload
+    // offset to payload
+    int payload_offset;
     pid = GetPid(&buf[1]);
 
-    if (buf[1] & 0x40)  		// PES開始インジケータ
+    // PES開始インジケータ
+    if (buf[1] & 0x40)
     {
-        sp->section_remain[pid] = ((buf[6] & 0x0F) << 8) + buf[7] + 3;	// セクションサイズ取得(ヘッダ込)
+        // セクションサイズ取得(ヘッダ込)
+        sp->section_remain[pid] = ((buf[6] & 0x0F) << 8) + buf[7] + 3;
+
         payload_offset = 5;
 
         for (count = 0; sp->pmt_retain > count; count++)
@@ -796,12 +807,14 @@ static int AnalyzePmt(splitter* sp, unsigned char* buf, unsigned char mark)
             }
         }
 
-        // PCR, 番組情報が先頭からはみ出ることはないだろう
         // PCR
+        // 番組情報が先頭からはみ出ることはないだろう
         pcr = GetPid(&buf[payload_offset + 8]);
         sp->pids[pcr] = mark;
+
         // ECM
-        N = ((buf[payload_offset + 10] & 0x0F) << 8) + buf[payload_offset + 11] + payload_offset + 12;	// ES情報開始点
+        // ES情報開始点
+        N = ((buf[payload_offset + 10] & 0x0F) << 8) + buf[payload_offset + 11] + payload_offset + 12;
         int p = payload_offset + 12;
 
         while (p < N)

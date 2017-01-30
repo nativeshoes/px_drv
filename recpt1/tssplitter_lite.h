@@ -1,4 +1,3 @@
-/* -*- tab-width: 4; indent-tabs-mode: t -*- */
 /* tssplitter_lite.h  -- split TS stream program's header.
 
    Copyright 2009 querulous
@@ -23,19 +22,19 @@
 #include <inttypes.h>
 #include <unistd.h>
 
-#define LENGTH_PACKET		(188)
-#define MAX_PID				(8192)
-#define MAX_SERVICES		(50)
-#define LENGTH_CRC_DATA		(176)
-#define false				(0)
-#define true				(1)
+#define LENGTH_PACKET       (188)
+#define MAX_PID             (8192)
+#define MAX_SERVICES        (50)
+#define LENGTH_CRC_DATA     (176)
+#define false               (0)
+#define true                (1)
 
-#define TSS_SUCCESS			(0)
-#define TSS_ERROR			(-1)
-#define TSS_NULL			(-2)
-#define LENGTH_PAT_HEADER	(12)
-#define C_CHAR_COMMA		','
-#define SECTION_CONTINUE	(1)
+#define TSS_SUCCESS         (0)
+#define TSS_ERROR           (-1)
+#define TSS_NULL            (-2)
+#define LENGTH_PAT_HEADER   (12)
+#define C_CHAR_COMMA        ','
+#define SECTION_CONTINUE    (1)
 
 typedef struct pmt_version
 {
@@ -49,11 +48,11 @@ typedef struct pmt_version
  */
 typedef struct splitter
 {
-    unsigned char	pids[MAX_PID];
-    unsigned char	pmt_pids[MAX_PID];
-    unsigned char*	pat;
-    char**			sid_list;
-    unsigned char	pat_count;
+    unsigned char   pids[MAX_PID];
+    unsigned char   pmt_pids[MAX_PID];
+    unsigned char*  pat;
+    char**          sid_list;
+    unsigned char   pat_count;
     int pmt_retain;
     int pmt_counter;
     int avail_pmts[MAX_SERVICES];

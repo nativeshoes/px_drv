@@ -16,7 +16,7 @@ static int do_mkdir(const char* path, mode_t mode)
 
     if (stat(path, &st) != 0)
     {
-        /* Directory does not exist */
+        // Directory does not exist
         if (mkdir(path, mode) != 0)
         {
             status = -1;
@@ -44,7 +44,7 @@ int mkpath(const char* path, mode_t mode)
     {
         if (sp != pp)
         {
-            /* Neither root nor double slash in path */
+            // Neither root nor double slash in path
             *sp = '\0';
             status = do_mkdir(copypath, mode);
             *sp = '/';
