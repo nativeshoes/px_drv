@@ -27,35 +27,35 @@ DEPEND = .deps
 all: $(TARGETS)
 
 clean:
-    rm -f $(OBJALL) $(TARGETS) $(DEPEND) version.h
+	rm -f $(OBJALL) $(TARGETS) $(DEPEND) version.h
 
 distclean: clean
-    rm -f Makefile config.h config.log config.status
+	rm -f Makefile config.h config.log config.status
 
 maintainer-clean: distclean
-    rm -fr configure config.h.in aclocal.m4 autom4te.cache *~
+	rm -fr configure config.h.in aclocal.m4 autom4te.cache *~
 
 $(TARGET): $(OBJS)
-    $(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 $(TARGET2): $(OBJS2)
-    $(CC) $(LDFLAGS) -o $@ $(OBJS2) $(LIBS2)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS2) $(LIBS2)
 
 $(TARGET3): $(OBJS3)
-    $(CC) $(LDFLAGS) -o $@ $(OBJS3) $(LIBS3)
+	$(CC) $(LDFLAGS) -o $@ $(OBJS3) $(LIBS3)
 
 $(DEPEND): version.h
-    $(CC) -MM $(OBJS:.o=.c) $(OBJS2:.o=.c) $(CPPFLAGS) > $@
+	$(CC) -MM $(OBJS:.o=.c) $(OBJS2:.o=.c) $(CPPFLAGS) > $@
 
 version.h:
-    revh=`hg parents --template 'const char *version = "r{rev}:{node|short} ({date|shortdate})";\n' 2>/dev/null`; \
-    if [ -n "$$revh" ] ; then \
-        echo "$$revh" > $@; \
-    else \
-        echo "const char *version = \"$(RELEASE_VERSION)\";" > $@; \
-    fi
+	revh=`hg parents --template 'const char *version = "r{rev}:{node|short} ({date|shortdate})";\n' 2>/dev/null`; \
+	if [ -n "$$revh" ] ; then \
+	    echo "$$revh" > $@; \
+	else \
+	    echo "const char *version = \"$(RELEASE_VERSION)\";" > $@; \
+	fi
 
 install: $(TARGET)
-    install -m 755 $(TARGETS) $(DESTDIR)$(bindir)
+	install -m 755 $(TARGETS) $(DESTDIR)$(bindir)
 
 -include .deps

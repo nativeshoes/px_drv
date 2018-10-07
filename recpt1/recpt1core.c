@@ -9,7 +9,7 @@
 
 // globals
 boolean f_exit = FALSE;
-char  bs_channel_buf[8];
+char  bs_channel_buf[20];
 ISDB_T_FREQ_CONV_TABLE isdb_t_conv_set = { 0, CHTYPE_SATELLITE, 0, bs_channel_buf };
 
 // lookup frequency conversion table

@@ -89,14 +89,15 @@ ISDB_T_FREQ_CONV_TABLE isdb_t_conv_table[] =
 {
     {   0, CHTYPE_SATELLITE, 0, "151"},     //  151ch：BS朝日
     {   0, CHTYPE_SATELLITE, 1, "161"},     //  161ch：BS-TBS
+    {   0, CHTYPE_SATELLITE, 2, "171"},     //  171ch：BSジャパン
     {   1, CHTYPE_SATELLITE, 0, "191"},     //  191ch：WOWOW prime
-    {   1, CHTYPE_SATELLITE, 1, "171"},     //  171ch：BSジャパン
+    {   1, CHTYPE_SATELLITE, 1, "103"},     //  103ch：NHK-BSプレミアム
+    {   1, CHTYPE_SATELLITE, 2, "256"},     //  256ch：ディズニー・チャンネル
     {   2, CHTYPE_SATELLITE, 0, "192"},     //  192ch：WOWOWライブ
     {   2, CHTYPE_SATELLITE, 1, "193"},     //  193ch：WOWOWシネマ
-    {   3, CHTYPE_SATELLITE, 0, "201"},     //  201ch：スター・チャンネル2
-    {   3, CHTYPE_SATELLITE, 0, "202"},     //  202ch：スター・チャンネル3
-    {   3, CHTYPE_SATELLITE, 1, "236"},     //  236ch：BSアニマックス
-    {   3, CHTYPE_SATELLITE, 2, "256"},     //  256ch：ディズニー・チャンネル
+    {   3, CHTYPE_SATELLITE, 0, "451"},     //  451ch：BS朝日4K
+    {   3, CHTYPE_SATELLITE, 1, "471"},     //  471ch：BSジャパン 4K
+    {   3, CHTYPE_SATELLITE, 2, "441"},     //  441ch：BS日テレ 4K
     {   4, CHTYPE_SATELLITE, 0, "211"},     //  211ch：BS11デジタル
     {   4, CHTYPE_SATELLITE, 1, "200"},     //  200ch：スター・チャンネル1
     {   4, CHTYPE_SATELLITE, 2, "222"},     //  222ch：TwellV
@@ -108,17 +109,14 @@ ISDB_T_FREQ_CONV_TABLE isdb_t_conv_table[] =
     {   5, CHTYPE_SATELLITE, 2, "531"},     //  531ch：放送大学ラジオ
     {   6, CHTYPE_SATELLITE, 0, "141"},     //  141ch：BS日テレ
     {   6, CHTYPE_SATELLITE, 1, "181"},     //  181ch：BSフジ
+    {   6, CHTYPE_SATELLITE, 2, "236"},     //  236ch：BSアニマックス
     {   7, CHTYPE_SATELLITE, 0, "101"},     //  101ch：NHK-BS1
     {   7, CHTYPE_SATELLITE, 0, "102"},     //  102ch：NHK-BS1臨時
-    {   7, CHTYPE_SATELLITE, 1, "103"},     //  103ch：NHK-BSプレミアム
-    {   7, CHTYPE_SATELLITE, 1, "910"},     //  910ch：ウェザーニュース(WNI)
-    {   8, CHTYPE_SATELLITE, 2, "291"},     //  291ch：NHK総合テレビジョン（東京）
-    {   8, CHTYPE_SATELLITE, 2, "292"},     //  292ch：NHK教育テレビジョン（東京）
-    {   8, CHTYPE_SATELLITE, 1, "294"},     //  294ch：日本テレビ
-    {   8, CHTYPE_SATELLITE, 1, "295"},     //  295ch：テレビ朝日
-    {   8, CHTYPE_SATELLITE, 1, "296"},     //  296ch：TBSテレビ
-    {   8, CHTYPE_SATELLITE, 1, "297"},     //  297ch：テレビ東京
-    {   8, CHTYPE_SATELLITE, 2, "298"},     //  298ch：フジテレビ
+    {   7, CHTYPE_SATELLITE, 1, "201"},     //  201ch：スター・チャンネル2
+    {   7, CHTYPE_SATELLITE, 2, "202"},     //  202ch：スター・チャンネル3
+    {   8, CHTYPE_SATELLITE, 0, "401"},     //  401ch：NHK SHV 4K
+    {   8, CHTYPE_SATELLITE, 1, "461"},     //  461ch：BS-TBS 4K
+    {   8, CHTYPE_SATELLITE, 2, "481"},     //  481ch：BSフジ 4K
     {   9, CHTYPE_SATELLITE, 0, "234"},     //  234ch：グリーンチャンネル
     {   9, CHTYPE_SATELLITE, 1, "242"},     //  242ch：J SPORTS 1
     {   9, CHTYPE_SATELLITE, 2, "243"},     //  243ch：J SPORTS 2
